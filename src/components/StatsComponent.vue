@@ -1,14 +1,20 @@
 <template>
 
-  <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2F&response_type=token&scope=identify%20guilds'>Login with Discord</a>
+  <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds'>Login with Discord</a>
   <div v-else>
     <h1>Welcome {{discordData}}</h1>
     <div id="servers">
       <h1>Discord Servers</h1>
 
       <li v-for="server in discordGuilds" :key="server.id">
-        {{ server.name }}
+        <div class="card" style="width: 18rem;">
+          <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{server.guildName}}</h5>
+          </div>
+        </div>
       </li>
+
 
     </div>
   </div>
@@ -16,7 +22,7 @@
 
 </template>
 
-<script defer>
+<script>
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
@@ -28,11 +34,12 @@ export default {
       tickets: 0,
       discordData: null,
       discordGuilds: null,
-      loggedIn: false
+      loggedIn: false,
     };
   },
   created() {
-    this.fetchData();
+    this.fetchDiscordUser();
+    this.fetchUserGuilds();
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
@@ -55,7 +62,7 @@ export default {
         this.tickets = doc.data().numbTicketsOpend;
       });
     },
-    fetchData() {
+    fetchDiscordUser() {
       const fragment = new URLSearchParams(window.location.hash.slice(1));
       if(fragment.has('access_token')) {
         this.loggedIn = true;
@@ -73,7 +80,13 @@ export default {
             this.discordData = username + '#' + discriminator;
           })
           .catch(console.error);
-
+    },
+    fetchUserGuilds() {
+      const fragment = new URLSearchParams(window.location.hash.slice(1));
+      if(fragment.has('access_token')) {
+        this.loggedIn = true;
+      }
+      const accessToken = fragment.get('access_token');
       fetch('https://discord.com/api/users/@me/guilds', {
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -81,11 +94,43 @@ export default {
       })
           .then(result => result.json())
           .then(response => {
-            this.discordGuilds = response;
-            console.table(response);
+            let guildIdIconArray = [];
+            for (let i = 0; i < response.length; i++) {
+              let guildId = response[i].id;
+              let guildIcon = response[i].icon;
+              let guildName = response[i].name;
+              guildIdIconArray.push({
+                guildId: guildId,
+                guildIcon: guildIcon,
+                guildName: guildName
+              });
+            }
+
+            for (let i = 0; i < guildIdIconArray.length; i++) {
+              let guildId = guildIdIconArray[i].guildId;
+              let guildIcon = guildIdIconArray[i].guildIcon;
+
+              if(guildIcon != null) {
+                fetch(`https://cdn.discordapp.com/icons/${guildId}/${guildIcon}.png`)
+                    .then(response => {
+                      document.getElementById(guildId).src = response.url;
+                    })
+                    .catch(console.error);
+              }
+            }
+            this.discordGuilds = guildIdIconArray;
+
           })
           .catch(console.error);
-    }
+    },
+    // fetchIcon: async function fetchGuildIcon(guildId, guildIcon) {
+    //   if(guildIcon != null) {
+    //     const reponse = await fetch(`https://cdn.discordapp.com/icons/${guildId}/${guildIcon}.png`);
+    //     return reponse.url;
+    //   }
+    //
+    // }
+
   },
 }
 </script>
@@ -95,11 +140,21 @@ export default {
   text-align: center;
   margin: 0px auto;
 }
-li{
+#servers{
   list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  padding: 10px;
 }
 #welcome_txt {
   font-size: 24px;
+}
+
+.serverImg {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 #login-link {
