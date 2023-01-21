@@ -11,6 +11,7 @@
           <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{server.guildName}}</h5>
+            <router-link :to="{path:'/serverstats',query:{id: server.guildId}}"><button class="btn btn-primary">Go to stats</button></router-link>
           </div>
         </div>
       </li>
@@ -25,7 +26,7 @@
 <script>
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
+import { doc, onSnapshot, getFirestore, getDocs, query, collection } from 'firebase/firestore';
 
 export default {
   name: "StatsComponent",
@@ -38,8 +39,8 @@ export default {
     };
   },
   created() {
-    this.fetchDiscordUser();
-    this.fetchUserGuilds();
+
+
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
@@ -55,6 +56,8 @@ export default {
     const db = getFirestore(app);
 
     this.getTickets(db);
+    this.fetchDiscordUser();
+    this.fetchUserGuilds(db);
   },
   methods: {
     async getTickets(db) {
@@ -81,7 +84,7 @@ export default {
           })
           .catch(console.error);
     },
-    fetchUserGuilds() {
+    async fetchUserGuilds(db) {
       const fragment = new URLSearchParams(window.location.hash.slice(1));
       if(fragment.has('access_token')) {
         this.loggedIn = true;
@@ -93,24 +96,36 @@ export default {
         },
       })
           .then(result => result.json())
-          .then(response => {
+          .then(async response => {
+
+            const q = query(collection(db, "Guilds"));
+
+            let guildsBotIsIn = [];
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+              // doc.data() is never undefined for query doc snapshots
+              guildsBotIsIn.push(doc.id);
+            });
+
             let guildIdIconArray = [];
             for (let i = 0; i < response.length; i++) {
-              let guildId = response[i].id;
-              let guildIcon = response[i].icon;
-              let guildName = response[i].name;
-              guildIdIconArray.push({
-                guildId: guildId,
-                guildIcon: guildIcon,
-                guildName: guildName
-              });
+              if(guildsBotIsIn.includes(response[i].id)) {
+                let guildId = response[i].id;
+                let guildIcon = response[i].icon;
+                let guildName = response[i].name;
+                guildIdIconArray.push({
+                  guildId: guildId,
+                  guildIcon: guildIcon,
+                  guildName: guildName
+                });
+              }
             }
 
             for (let i = 0; i < guildIdIconArray.length; i++) {
               let guildId = guildIdIconArray[i].guildId;
               let guildIcon = guildIdIconArray[i].guildIcon;
 
-              if(guildIcon != null) {
+              if (guildIcon != null) {
                 fetch(`https://cdn.discordapp.com/icons/${guildId}/${guildIcon}.png`)
                     .then(response => {
                       document.getElementById(guildId).src = response.url;
@@ -123,13 +138,9 @@ export default {
           })
           .catch(console.error);
     },
-    // fetchIcon: async function fetchGuildIcon(guildId, guildIcon) {
-    //   if(guildIcon != null) {
-    //     const reponse = await fetch(`https://cdn.discordapp.com/icons/${guildId}/${guildIcon}.png`);
-    //     return reponse.url;
-    //   }
-    //
-    // }
+    goToServerStats() {
+      this.$router.push({ name: 'ServerStats' });
+    }
 
   },
 }
