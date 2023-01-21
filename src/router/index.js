@@ -6,6 +6,10 @@ const routes = [
     path: '/',
     name: 'stats',
     component: StatsComponent
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: StatsComponent
   }
 ]
 
