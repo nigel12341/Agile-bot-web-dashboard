@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     async getAndComputeStats(db) {
-      await onSnapshot(doc(db, "Guilds", "1026521458400296962", "stats", "tickets"), (doc) => {
+      await onSnapshot(doc(db, "Guilds", this.$route.query.id, "stats", "tickets"), (doc) => {
         this.ticketsOpened = doc.data().numbTicketsOpend;
         this.ticketsClosed = doc.data().numbTicketsClosed;
         this.ticketsInProgress = this.ticketsOpened - this.ticketsClosed;
