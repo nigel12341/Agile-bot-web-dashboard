@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import StatsComponent from "@/components/StatsComponent.vue";
 import logOutComponent from "@/components/logOutComponent.vue";
-import ServerStatsView from "@/views/ServerStatsView.vue";
+import ServerView from "@/views/ServerView.vue";
 
 const routes = [
   {
@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/serverstats',
     name: 'serverstats',
-    component: ServerStatsView
+    component: ServerView
   },
   {
     path: '/:pathMatch(.*)*',

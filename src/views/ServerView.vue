@@ -19,7 +19,7 @@ import ServerStatsComponent from "@/components/ServerStatsComponent.vue";
 import ServerSettingsComponent from "@/components/ServerSettingsComponent.vue";
 
 export default {
-  name: "ServerStatsView",
+  name: "ServerView",
   components: {ServerSettingsComponent, ServerStatsComponent}
 }
 </script>
