@@ -56,12 +56,16 @@ export default {
 
     getAnalytics(app);
 
-    this.fetchDiscordUser();
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    if(!fragment.has('access_token')) {
+      return;
+    }
+
+    this.fetchDiscordUser(fragment);
     this.fetchUserGuilds(db);
   },
   methods: {
-    fetchDiscordUser() {
-      const fragment = new URLSearchParams(window.location.hash.slice(1));
+    fetchDiscordUser(fragment) {
       if(fragment.has('access_token')) {
         this.loggedIn = true;
       }
