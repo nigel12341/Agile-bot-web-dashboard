@@ -3,9 +3,8 @@
   <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds'>Login with Discord</a>
   <div v-else>
     <h1>Welcome {{discordData}}</h1>
+    <h1>Discord Servers</h1>
     <div id="servers">
-      <h1>Discord Servers</h1>
-
       <li v-for="server in discordGuilds" :key="server.id">
         <div class="card" style="width: 18rem;">
           <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
@@ -26,13 +25,13 @@
 <script>
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { doc, onSnapshot, getFirestore, getDocs, query, collection } from 'firebase/firestore';
+import { getFirestore, getDocs, query, collection } from 'firebase/firestore';
+import { getAnalytics } from "firebase/analytics";
 
 export default {
   name: "StatsComponent",
   data() {
     return {
-      tickets: 0,
       discordData: null,
       discordGuilds: null,
       loggedIn: false,
@@ -55,16 +54,12 @@ export default {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    this.getTickets(db);
+    getAnalytics(app);
+
     this.fetchDiscordUser();
     this.fetchUserGuilds(db);
   },
   methods: {
-    async getTickets(db) {
-      await onSnapshot(doc(db, "Guilds", "1026521458400296962", "stats", "tickets"), (doc) => {
-        this.tickets = doc.data().numbTicketsOpend;
-      });
-    },
     fetchDiscordUser() {
       const fragment = new URLSearchParams(window.location.hash.slice(1));
       if(fragment.has('access_token')) {
@@ -138,9 +133,6 @@ export default {
           })
           .catch(console.error);
     },
-    goToServerStats() {
-      this.$router.push({ name: 'ServerStats' });
-    }
 
   },
 }
@@ -153,9 +145,8 @@ export default {
 }
 #servers{
   list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
 }
 #welcome_txt {
   font-size: 24px;
