@@ -2,8 +2,12 @@
 
   <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds'>Login with Discord</a>
   <div v-else>
-    <h1>Welcome {{discordData}}</h1>
-    <h1>Discord Servers</h1>
+
+    <h1>Welcome</h1>
+    <img id="profileImg" :src=userPfp alt="Profile Picture">
+    <h2>{{discordData}}</h2>
+
+    <h1>Discord Servers you and the bot share!</h1>
     <div id="servers">
       <li v-for="server in discordGuilds" :key="server.id">
         <div class="card" style="width: 18rem;">
@@ -35,6 +39,7 @@ export default {
       discordData: null,
       discordGuilds: null,
       loggedIn: false,
+      userPfp: null
     };
   },
   created() {
@@ -78,8 +83,14 @@ export default {
         },
       }).then(result => result.json())
           .then(response => {
-            const { username, discriminator } = response;
+            const { username, discriminator, id, avatar } = response;
             this.discordData = username + '#' + discriminator;
+
+            fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
+                .then(response => {
+                  this.userPfp = response.url;
+                })
+                .catch(console.error);
           })
           .catch(console.error);
     },
@@ -156,7 +167,7 @@ export default {
   font-size: 24px;
 }
 
-.serverImg {
+.serverImg, #profileImg {
   width: 100px;
   height: 100px;
   object-fit: cover;
