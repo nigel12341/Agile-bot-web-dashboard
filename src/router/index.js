@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import StatsComponent from "@/components/StatsComponent.vue";
+import StatsComponent from "@/components/ServerOverviewComponent.vue";
 import logOutComponent from "@/components/logOutComponent.vue";
 import ServerView from "@/views/ServerView.vue";
 
