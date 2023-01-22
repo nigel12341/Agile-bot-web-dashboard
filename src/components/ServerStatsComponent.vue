@@ -1,33 +1,38 @@
 <template>
-  <h1>Stats</h1>
-  <h3>Tickets opened</h3>
-  <div class="container">
+
+  <div id="stats">
     <div class="row">
-      <div class="col">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Tickets opened</h5>
-            <p class="card-text">{{ticketsOpened}}</p>
+    <h1>Stats</h1>
+    <h3>Tickets opened</h3>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Tickets opened</h5>
+              <p class="card-text">{{ ticketsOpened }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Tickets closed</h5>
-            <p class="card-text">{{ticketsClosed}}</p>
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Tickets closed</h5>
+              <p class="card-text">{{ ticketsClosed }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Tickets in progress</h5>
-            <p class="card-text">{{ticketsInProgress}}</p>
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Tickets in progress</h5>
+              <p class="card-text">{{ ticketsInProgress }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
+      </div>
   </div>
 
 </template>
@@ -69,7 +74,8 @@ export default {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    this.getAndComputeStats(db);
+    await this.getAndComputeStats(db);
+
   },
 }
 </script>
