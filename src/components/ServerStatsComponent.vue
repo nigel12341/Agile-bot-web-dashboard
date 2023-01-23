@@ -1,6 +1,5 @@
 <template>
-
-  <div id="stats">
+  <div class="card" id="stats">
     <div class="row">
     <h1>Stats</h1>
     <h3>Tickets opened</h3>

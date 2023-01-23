@@ -1,6 +1,6 @@
 <template>
 
-  <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds'>Login with Discord</a>
+  <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds%20guilds.members.read'>Login with Discord</a>
   <div v-else>
 
     <h1>Welcome</h1>
@@ -8,16 +8,18 @@
     <h2>{{discordData}}</h2>
 
     <h1>Discord Servers you and the bot share!</h1>
-    <div id="servers">
-      <li v-for="server in discordGuilds" :key="server.id">
+    <div id="servers" class="container">
+      <div class="row">
+      <div v-for="server in discordGuilds" :key="server.id" class="col">
         <div class="card" style="width: 18rem;">
           <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{server.guildName}}</h5>
-            <router-link :to="{path:'/serverstats',query:{id: server.guildId}}"><button class="btn btn-primary">Go to stats</button></router-link>
+            <router-link :to="{path:'/serverstats',query:{id: server.guildId}}"><button class="btn btn-primary">Manage</button></router-link>
           </div>
         </div>
-      </li>
+      </div>
+      </div>
 
 
     </div>
@@ -29,8 +31,22 @@
 <script>
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore, getDocs, query, collection } from 'firebase/firestore';
+import { getFirestore, getDocs, query, collection, doc, getDoc } from 'firebase/firestore';
 import { getAnalytics } from "firebase/analytics";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
+  authDomain: "agile-bot-2003.firebaseapp.com",
+  projectId: "agile-bot-2003",
+  storageBucket: "agile-bot-2003.appspot.com",
+  messagingSenderId: "1014532189070",
+  appId: "1:1014532189070:web:e3c3751ecabf85758312df"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export default {
   name: "StatsComponent",
@@ -39,26 +55,11 @@ export default {
       discordData: null,
       discordGuilds: null,
       loggedIn: false,
-      userPfp: null
+      userPfp: null,
+      userId: null
     };
   },
   created() {
-
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
-      authDomain: "agile-bot-2003.firebaseapp.com",
-      projectId: "agile-bot-2003",
-      storageBucket: "agile-bot-2003.appspot.com",
-      messagingSenderId: "1014532189070",
-      appId: "1:1014532189070:web:e3c3751ecabf85758312df"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
     getAnalytics(app);
 
     const fragment = new URLSearchParams(window.location.hash.slice(1));
@@ -67,9 +68,14 @@ export default {
     }
 
     this.fetchDiscordUser(fragment);
-    this.fetchUserGuilds(db);
+    this.fetchUserGuilds();
   },
   methods: {
+    sleeper(ms) {
+      return function(x) {
+        return new Promise(resolve => setTimeout(() => resolve(x), ms));
+      };
+    },
     fetchDiscordUser(fragment) {
       if(fragment.has('access_token')) {
         this.loggedIn = true;
@@ -85,6 +91,7 @@ export default {
           .then(response => {
             const { username, discriminator, id, avatar } = response;
             this.discordData = username + '#' + discriminator;
+            this.userId = id;
 
             fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
                 .then(response => {
@@ -94,7 +101,7 @@ export default {
           })
           .catch(console.error);
     },
-    async fetchUserGuilds(db) {
+    async fetchUserGuilds() {
       const fragment = new URLSearchParams(window.location.hash.slice(1));
       if(fragment.has('access_token')) {
         this.loggedIn = true;
@@ -118,15 +125,40 @@ export default {
             });
 
             let guildIdIconArray = [];
+
             for (let i = 0; i < response.length; i++) {
               if(guildsBotIsIn.includes(response[i].id)) {
+                let authorized = false;
+                const docRef = doc(db, "Guilds", response[i].id);
+                const docSnap = await getDoc(docRef);
+
+                await fetch(`https://discord.com/api/users/@me/guilds/${response[i].id}/member`, {
+                  headers: {
+                    authorization: `Bearer ${accessToken}`,
+                  },
+                }).then(result => result.json())
+                    .then(async response => {
+                      await this.sleeper(2000);
+
+                      if (!response.message === "You are being rate limited.") {
+                        if (response.roles.length > 0) {
+                          if (response.roles.includes(docSnap.data().adminRoleId)) {
+                            authorized = true;
+                          }
+                        } else {
+                          authorized = false;
+                        }
+                      }
+                    })
+                    .catch(console.error);
                 let guildId = response[i].id;
                 let guildIcon = response[i].icon;
                 let guildName = response[i].name;
                 guildIdIconArray.push({
                   guildId: guildId,
                   guildIcon: guildIcon,
-                  guildName: guildName
+                  guildName: guildName,
+                  authorized: authorized
                 });
               }
             }
