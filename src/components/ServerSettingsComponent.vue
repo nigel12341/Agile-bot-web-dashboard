@@ -160,9 +160,21 @@ export default {
             if (response.message === "You are being rate limited.") {
               this.authorized = false;
               this.fetchFailed = true;
-              return;
             }
             this.authorized = response.roles.includes(docSnap.data().adminRoleId);
+          })
+          .catch(console.error);
+      await fetch(`https://discord.com/api/users/@me/guilds`, {
+        headers: {
+          authorization: `Bearer ${this.access_token}`,
+        },
+      }).then(result => result.json())
+          .then(async response => {
+            let obj = response.find(o => o.id === this.serverId);
+
+            if (obj.owner === true) {
+              this.authorized = true;
+            }
           })
           .catch(console.error);
     }
