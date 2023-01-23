@@ -1,25 +1,28 @@
 <template>
 
-  <a v-if=!loggedIn id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds%20guilds.members.read'>Login with Discord</a>
+  <a v-if=!loggedIn id='login-link'
+     href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds%20guilds.members.read'>Login
+    with Discord</a>
   <div v-else>
 
     <h1>Welcome</h1>
     <img id="profileImg" :src=userPfp alt="Profile Picture">
-    <h2>{{discordData}}</h2>
+    <h2>{{ discordData }}</h2>
 
-    <h2>Servers you are authorized to edit/view</h2>
-    <h4>If you are missing a server, make sure you have the admin role you have setup.</h4>
+    <h2>Servers you share with the bot</h2>
     <div id="servers" class="container">
       <div class="row">
-      <div v-for="server in discordGuilds" :key="server.id" class="col">
-        <div class="card" style="width: 18rem;" v-if=server.authorized>
-          <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{server.guildName}}</h5>
-            <router-link :to="{path:'/serverstats',query:{id: server.guildId}}"><button class="btn btn-primary">Manage</button></router-link>
+        <div v-for="server in discordGuilds" :key="server.id" class="col">
+          <div class="card" style="width: 18rem;">
+            <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{ server.guildName }}</h5>
+              <router-link :to="{path:'/serverstats',query:{id: server.guildId, access_token: userToken}}">
+                <button class="btn btn-primary">Manage</button>
+              </router-link>
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
 
@@ -31,9 +34,9 @@
 
 <script>
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore, getDocs, query, collection, doc, getDoc } from 'firebase/firestore';
-import { getAnalytics } from "firebase/analytics";
+import {initializeApp} from "firebase/app";
+import {collection, getDocs, getFirestore, query} from 'firebase/firestore';
+import {getAnalytics} from "firebase/analytics";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -58,13 +61,14 @@ export default {
       loggedIn: false,
       userPfp: null,
       userId: null,
+      userToken: ''
     };
   },
   created() {
     getAnalytics(app);
-
     const fragment = new URLSearchParams(window.location.hash.slice(1));
-    if(!fragment.has('access_token')) {
+    this.userToken = fragment.get('access_token')
+    if (!fragment.has('access_token')) {
       return;
     }
 
@@ -73,12 +77,12 @@ export default {
   },
   methods: {
     sleeper(ms) {
-      return function(x) {
+      return function (x) {
         return new Promise(resolve => setTimeout(() => resolve(x), ms));
       };
     },
     fetchDiscordUser(fragment) {
-      if(fragment.has('access_token')) {
+      if (fragment.has('access_token')) {
         this.loggedIn = true;
       }
       const accessToken = fragment.get('access_token');
@@ -90,7 +94,7 @@ export default {
         },
       }).then(result => result.json())
           .then(response => {
-            const { username, discriminator, id, avatar } = response;
+            const {username, discriminator, id, avatar} = response;
             this.discordData = username + '#' + discriminator;
             this.userId = id;
 
@@ -104,7 +108,7 @@ export default {
     },
     async fetchUserGuilds() {
       const fragment = new URLSearchParams(window.location.hash.slice(1));
-      if(fragment.has('access_token')) {
+      if (fragment.has('access_token')) {
         this.loggedIn = true;
       }
       const accessToken = fragment.get('access_token');
@@ -129,35 +133,8 @@ export default {
             let guildIdIconArray = [];
 
             for (let i = 0; i < response.length; i++) {
-              if(guildsBotIsIn.includes(response[i].id)) {
-                let owner = false;
-                let authorized = false;
-                const docRef = doc(db, "Guilds", response[i].id);
-                const docSnap = await getDoc(docRef);
-                if(response[i].owner) {
-                  owner = true;
-                }
+              if (guildsBotIsIn.includes(response[i].id)) {
                 await this.sleeper(2000);
-                await fetch(`https://discord.com/api/users/@me/guilds/${response[i].id}/member`, {
-                  headers: {
-                    authorization: `Bearer ${accessToken}`,
-                  },
-                }).then(result => result.json())
-                    .then(async response => {
-                      if(owner){
-                        authorized = true;
-                      } else if (response.roles.length > 0) {
-                        if (response.roles.includes(docSnap.data().adminRoleId)) {
-                          authorized = true;
-                        }
-                        else {
-                          authorized = false;
-                        }
-                      } else {
-                        authorized = false;
-                      }
-                    })
-                    .catch(console.error);
                 let guildId = response[i].id;
                 let guildIcon = response[i].icon;
                 let guildName = response[i].name;
@@ -165,7 +142,6 @@ export default {
                   guildId: guildId,
                   guildIcon: guildIcon,
                   guildName: guildName,
-                  authorized: authorized
                 });
               }
             }
@@ -197,11 +173,13 @@ export default {
   text-align: center;
   margin: 0px auto;
 }
-#servers{
+
+#servers {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
 }
+
 #welcome_txt {
   font-size: 24px;
 }
