@@ -3,7 +3,6 @@
     <div id="botSettings" class="card">
       <h2>Bot settings</h2>
       <h4>You can also change these settings in discord using the /setup command!</h4>
-      <h4>Setup status: {{ setupStatus }}</h4>
 
       <div id="currentSettings">
         <h3>Current settings</h3>

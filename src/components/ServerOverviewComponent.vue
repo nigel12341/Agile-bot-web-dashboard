@@ -7,11 +7,12 @@
     <img id="profileImg" :src=userPfp alt="Profile Picture">
     <h2>{{discordData}}</h2>
 
-    <h1>Discord Servers you and the bot share!</h1>
+    <h2>Servers you are authorized to edit/view</h2>
+    <h4>If you are missing a server, make sure you have the admin role you have setup.</h4>
     <div id="servers" class="container">
       <div class="row">
       <div v-for="server in discordGuilds" :key="server.id" class="col">
-        <div class="card" style="width: 18rem;">
+        <div class="card" style="width: 18rem;" v-if=server.authorized>
           <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
           <div class="card-body">
             <h5 class="card-title">{{server.guildName}}</h5>
@@ -56,7 +57,7 @@ export default {
       discordGuilds: null,
       loggedIn: false,
       userPfp: null,
-      userId: null
+      userId: null,
     };
   },
   created() {
@@ -122,32 +123,38 @@ export default {
             querySnapshot.forEach((doc) => {
               // doc.data() is never undefined for query doc snapshots
               guildsBotIsIn.push(doc.id);
+              guildsBotIsIn.push(doc.owner);
             });
 
             let guildIdIconArray = [];
 
             for (let i = 0; i < response.length; i++) {
               if(guildsBotIsIn.includes(response[i].id)) {
+                let owner = false;
                 let authorized = false;
                 const docRef = doc(db, "Guilds", response[i].id);
                 const docSnap = await getDoc(docRef);
-
+                if(response[i].owner) {
+                  owner = true;
+                }
+                await this.sleeper(2000);
                 await fetch(`https://discord.com/api/users/@me/guilds/${response[i].id}/member`, {
                   headers: {
                     authorization: `Bearer ${accessToken}`,
                   },
                 }).then(result => result.json())
                     .then(async response => {
-                      await this.sleeper(2000);
-
-                      if (!response.message === "You are being rate limited.") {
-                        if (response.roles.length > 0) {
-                          if (response.roles.includes(docSnap.data().adminRoleId)) {
-                            authorized = true;
-                          }
-                        } else {
+                      if(owner){
+                        authorized = true;
+                      } else if (response.roles.length > 0) {
+                        if (response.roles.includes(docSnap.data().adminRoleId)) {
+                          authorized = true;
+                        }
+                        else {
                           authorized = false;
                         }
+                      } else {
+                        authorized = false;
                       }
                     })
                     .catch(console.error);
@@ -163,6 +170,7 @@ export default {
               }
             }
 
+
             for (let i = 0; i < guildIdIconArray.length; i++) {
               let guildId = guildIdIconArray[i].guildId;
               let guildIcon = guildIdIconArray[i].guildIcon;
@@ -176,7 +184,6 @@ export default {
               }
             }
             this.discordGuilds = guildIdIconArray;
-
           })
           .catch(console.error);
     },
