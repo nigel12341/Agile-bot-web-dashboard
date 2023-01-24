@@ -71,8 +71,7 @@
 </template>
 
 <script>
-import {initializeApp} from "firebase/app";
-import {doc, getFirestore, onSnapshot} from "firebase/firestore";
+import {doc, onSnapshot} from "firebase/firestore";
 
 export default {
   name: "ServerStatsComponent",
@@ -87,14 +86,20 @@ export default {
       kicks: 0,
     };
   },
+  props: {
+    db: {
+      type: Object,
+      required: true,
+    },
+  },
   methods: {
-    async getAndComputeStats(db) {
-      await onSnapshot(doc(db, "Guilds", this.$route.query.id, "stats", "tickets"), (doc) => {
+    async getAndComputeStats() {
+      await onSnapshot(doc(this.db, "Guilds", this.$route.query.id, "stats", "tickets"), (doc) => {
         this.ticketsOpened = doc.data().numbTicketsOpend;
         this.ticketsClosed = doc.data().numbTicketsClosed;
         this.ticketsInProgress = this.ticketsOpened - this.ticketsClosed;
       });
-      await onSnapshot(doc(db, "Guilds", this.$route.query.id, "stats", "moderation"), (doc) => {
+      await onSnapshot(doc(this.db, "Guilds", this.$route.query.id, "stats", "moderation"), (doc) => {
         this.clears = doc.data().clears;
         this.bans = doc.data().bans;
         this.kicks = doc.data().kicks;
@@ -103,22 +108,7 @@ export default {
     },
   },
   async created() {
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
-      authDomain: "agile-bot-2003.firebaseapp.com",
-      projectId: "agile-bot-2003",
-      storageBucket: "agile-bot-2003.appspot.com",
-      messagingSenderId: "1014532189070",
-      appId: "1:1014532189070:web:e3c3751ecabf85758312df"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    await this.getAndComputeStats(db);
-
+    await this.getAndComputeStats(this.db);
   },
 }
 </script>

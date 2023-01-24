@@ -65,21 +65,7 @@
 </template>
 
 <script>
-import {doc, getDoc, getFirestore, onSnapshot, setDoc} from "firebase/firestore";
-import {initializeApp} from "firebase/app";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
-  authDomain: "agile-bot-2003.firebaseapp.com",
-  projectId: "agile-bot-2003",
-  storageBucket: "agile-bot-2003.appspot.com",
-  messagingSenderId: "1014532189070",
-  appId: "1:1014532189070:web:e3c3751ecabf85758312df"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import {doc, getDoc, onSnapshot, setDoc} from "firebase/firestore";
 
 export default {
   name: "ServerSettingsComponent",
@@ -97,9 +83,16 @@ export default {
       fetchFailed: false,
     }
   },
+  props: {
+    db: {
+      type: Object,
+      required: true,
+    },
+  },
+
   methods: {
     async fetchSettings() {
-      await onSnapshot(doc(db, "Guilds", this.serverId), (doc) => {
+      await onSnapshot(doc(this.db, "Guilds", this.serverId), (doc) => {
         this.ticketCatagory = doc.data().ticketCat;
         this.prefix = ((doc.data().prefix) ? doc.data().prefix : "Not set");
         this.modRole = ((doc.data().moderatorRoleId) ? doc.data().moderatorRoleId : "Not set");
@@ -113,41 +106,41 @@ export default {
 
       const newTicketCatagory = document.getElementById("ticketCatagoryInput").value;
 
-      await setDoc(doc(db, "Guilds", this.$route.query.id), {
+      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
         ticketCat: newTicketCatagory
       }, {merge: true});
     },
     async changePrefix() {
       const newPrefix = document.getElementById("prefixInput").value;
 
-      await setDoc(doc(db, "Guilds", this.$route.query.id), {
+      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
         prefix: newPrefix
       }, {merge: true});
     },
     async changeModRole() {
       const newModRole = document.getElementById("modRoleInput").value;
 
-      await setDoc(doc(db, "Guilds", this.$route.query.id), {
+      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
         moderatorRoleId: newModRole
       }, {merge: true});
     },
     async changeAdminRole() {
       const newAdminRole = document.getElementById("adminRoleInput").value;
 
-      await setDoc(doc(db, "Guilds", this.serverId), {
+      await setDoc(doc(this.db, "Guilds", this.serverId), {
         adminRoleId: newAdminRole
       }, {merge: true});
     },
     async changeStaffRole() {
       const newStaffRole = document.getElementById("staffRoleInput").value;
 
-      await setDoc(doc(db, "Guilds", this.$route.query.id), {
+      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
         staffRoleId: newStaffRole
       }, {merge: true});
     },
     async authorize() {
       this.fetchFailed = false;
-      const docRef = doc(db, "Guilds", this.serverId);
+      const docRef = doc(this.db, "Guilds", this.serverId);
       const docSnap = await getDoc(docRef);
 
 

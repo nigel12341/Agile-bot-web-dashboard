@@ -34,23 +34,9 @@
 
 <script>
 // Import the functions you need from the SDKs you need
-import {initializeApp} from "firebase/app";
-import {collection, getDocs, getFirestore, query} from 'firebase/firestore';
+import {collection, getDocs, query} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
-  authDomain: "agile-bot-2003.firebaseapp.com",
-  projectId: "agile-bot-2003",
-  storageBucket: "agile-bot-2003.appspot.com",
-  messagingSenderId: "1014532189070",
-  appId: "1:1014532189070:web:e3c3751ecabf85758312df"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 export default {
   name: "StatsComponent",
@@ -64,8 +50,18 @@ export default {
       userToken: ''
     };
   },
+  props: {
+    db: {
+      type: Object,
+      required: true
+    },
+    app: {
+      type: Object,
+      required: true
+    }
+  },
   created() {
-    getAnalytics(app);
+    getAnalytics(this.app);
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     this.userToken = fragment.get('access_token')
     if (!fragment.has('access_token')) {
@@ -120,7 +116,7 @@ export default {
           .then(result => result.json())
           .then(async response => {
 
-            const q = query(collection(db, "Guilds"));
+            const q = query(collection(this.db, "Guilds"));
 
             let guildsBotIsIn = [];
             const querySnapshot = await getDocs(q);
@@ -132,12 +128,12 @@ export default {
 
             let guildIdIconArray = [];
 
-            for (let i = 0; i < response.length; i++) {
-              if (guildsBotIsIn.includes(response[i].id)) {
+            for (const element of response) {
+              if (guildsBotIsIn.includes(element.id)) {
                 await this.sleeper(2000);
-                let guildId = response[i].id;
-                let guildIcon = response[i].icon;
-                let guildName = response[i].name;
+                let guildId = element.id;
+                let guildIcon = element.icon;
+                let guildName = element.name;
                 guildIdIconArray.push({
                   guildId: guildId,
                   guildIcon: guildIcon,
@@ -147,9 +143,9 @@ export default {
             }
 
 
-            for (let i = 0; i < guildIdIconArray.length; i++) {
-              let guildId = guildIdIconArray[i].guildId;
-              let guildIcon = guildIdIconArray[i].guildIcon;
+            for (const element of guildIdIconArray) {
+              let guildId = element.guildId;
+              let guildIcon = element.guildIcon;
 
               if (guildIcon != null) {
                 fetch(`https://cdn.discordapp.com/icons/${guildId}/${guildIcon}.png`)
