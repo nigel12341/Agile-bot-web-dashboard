@@ -63,7 +63,6 @@ export default {
   },
   created() {
     this.oauthURL = process.env.VUE_APP_OAUTH_URL;
-    console.log(process.env)
     getAnalytics(this.app);
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     this.userToken = fragment.get('access_token')
