@@ -7,6 +7,9 @@
       <div class="col">
         <ServerStatsComponent :db="db"/>
       </div>
+      <div class="col">
+        <transscript-component/>
+      </div>
     </div>
   </div>
 
@@ -15,15 +18,20 @@
 <script>
 import ServerStatsComponent from "@/components/ServerStatsComponent.vue";
 import ServerSettingsComponent from "@/components/ServerSettingsComponent.vue";
+import TransscriptComponent from "@/components/transscriptComponent";
 
 export default {
   name: "ServerView",
-  components: {ServerSettingsComponent, ServerStatsComponent},
+  components: {TransscriptComponent, ServerSettingsComponent, ServerStatsComponent},
   props: {
     db: {
       type: Object,
       required: true
     },
+    app: {
+      type: Object,
+      required: true
+    }
   },
 }
 </script>
