@@ -1,7 +1,7 @@
 <template>
 
   <a v-if=!loggedIn id='login-link'
-     href='https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=token&scope=identify%20guilds%20guilds.members.read'>Login
+     :href=oauthURL >Login
     with Discord</a>
   <div v-else>
 
@@ -47,7 +47,8 @@ export default {
       loggedIn: false,
       userPfp: null,
       userId: null,
-      userToken: ''
+      userToken: '',
+      oauthURL: '',
     };
   },
   props: {
@@ -61,6 +62,8 @@ export default {
     }
   },
   created() {
+    this.oauthURL = process.env.VUE_APP_OAUTH_URL;
+    console.log(process.env)
     getAnalytics(this.app);
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     this.userToken = fragment.get('access_token')
