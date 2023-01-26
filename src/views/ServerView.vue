@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="row">
       <div class="col">
         <ServerSettingsComponent :db="db"/>
@@ -7,22 +7,26 @@
       <div class="col">
         <ServerStatsComponent :db="db"/>
       </div>
+
+    </div>
+    <div class="row">
       <div class="col">
-        <transscript-component/>
+        <TransscriptOneServerComponent/>
       </div>
     </div>
   </div>
+
 
 </template>
 
 <script>
 import ServerStatsComponent from "@/components/ServerStatsComponent.vue";
 import ServerSettingsComponent from "@/components/ServerSettingsComponent.vue";
-import TransscriptComponent from "@/components/transscriptComponent";
+import TransscriptOneServerComponent from "@/components/transscriptOneServerComponent.vue";
 
 export default {
   name: "ServerView",
-  components: {TransscriptComponent, ServerSettingsComponent, ServerStatsComponent},
+  components: {TransscriptOneServerComponent, ServerSettingsComponent, ServerStatsComponent},
   props: {
     db: {
       type: Object,
@@ -36,5 +40,7 @@ export default {
 }
 </script>
 <style scoped>
-
+.container-fluid {
+  width: 100%;
+}
 </style>

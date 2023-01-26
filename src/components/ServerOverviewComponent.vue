@@ -1,32 +1,36 @@
 <template>
 
   <a v-if=!loggedIn id='login-link'
-     :href=oauthURL >Login
+     :href=oauthURL>Login
     with Discord</a>
   <div v-else>
-
     <h1>Welcome</h1>
     <img id="profileImg" :src=userPfp alt="Profile Picture">
     <h2>{{ discordData }}</h2>
-
-    <h2>Servers you share with the bot</h2>
-    <div id="servers" class="container">
-      <div class="row">
-        <div v-for="server in discordGuilds" :key="server.id" class="col">
-          <div class="card" style="width: 18rem;">
-            <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">{{ server.guildName }}</h5>
-              <router-link :to="{path:'/serverstats',query:{id: server.guildId, access_token: userToken}}">
-                <button class="btn btn-primary">Manage</button>
-              </router-link>
+    <div id="userOverview">
+      <router-link :to="{path:'/userView',query:{access_token: userToken}}">
+        <button class="btn btn-primary btn-lg">Go to personal overview</button>
+      </router-link>
+    </div>
+    <div id="serverOverview">
+      <h2>Servers you share with the bot</h2>
+      <div id="servers" class="container">
+        <div class="row">
+          <div v-for="server in discordGuilds" :key="server.id" class="col">
+            <div class="card" style="width: 18rem;">
+              <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{ server.guildName }}</h5>
+                <router-link :to="{path:'/serverstats',query:{id: server.guildId, access_token: userToken}}">
+                  <button class="btn btn-primary">Manage</button>
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-
     </div>
+
   </div>
 
 

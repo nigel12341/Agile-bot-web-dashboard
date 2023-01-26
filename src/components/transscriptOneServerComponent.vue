@@ -1,9 +1,8 @@
 <template>
   <div id="container" class="card">
-    <div class="row">
-      <h1>All your transscripts</h1>
-      <div class="col card" v-for="(url, index) in urls" :key="url">
-        <h3>{{index}}</h3>
+    <h1>Ticket transscripts for this server.</h1>
+    <div class="flex-container" id="parent">
+      <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
         <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
       </div>
     </div>
@@ -14,7 +13,7 @@
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 
 export default {
-  name: "transscriptComponent",
+  name: "transscriptOneServerComponent",
   async created() {
     await fetch('https://discord.com/api/users/@me', {
       headers: {
@@ -28,6 +27,7 @@ export default {
 
     const storage = getStorage();
     const listRef = ref(storage, this.user.id);
+    const serverID = this.$route.query.id;
 
     listAll(listRef)
       .then(async (res) => {
@@ -37,7 +37,9 @@ export default {
           await getDownloadURL(ref(storage, path)).then((downloadURL) => {
             let name = itemRef.name;
             name = name.substring(0, name.length - 5)
-            this.urls[name] = downloadURL;
+            if(name.includes(serverID)){
+              this.urls[name] = downloadURL;
+            }
           });
 
         }
@@ -59,5 +61,11 @@ export default {
 </script>
 
 <style scoped>
-
+#parent {
+  display: flex;
+  flex-wrap: wrap;
+}
+#child{
+  min-width: 400px;
+}
 </style>
