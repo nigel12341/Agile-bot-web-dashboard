@@ -5,7 +5,7 @@
     with Discord</a>
   <div v-else>
     <h1>Welcome</h1>
-    <img id="profileImg" :src=userPfp alt="Profile Picture">
+    <img id="profileImg" src="../assets/Discord-Logo.png" alt="Profile Picture">
     <h2>{{ discordData }}</h2>
     <div id="userOverview">
       <router-link :to="{path:'/userView',query:{access_token: userToken}}">
@@ -100,11 +100,13 @@ export default {
             this.discordData = username + '#' + discriminator;
             this.userId = id;
 
-            fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
-                .then(response => {
-                  this.userPfp = response.url;
-                })
-                .catch(console.error);
+            if(avatar != null){
+              fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
+                  .then(response => {
+                    document.getElementById("profileImg").src = response.url;
+                  })
+                  .catch(console.error);
+            }
           })
           .catch(console.error);
     },
