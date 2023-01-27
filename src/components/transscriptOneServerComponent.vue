@@ -1,7 +1,7 @@
 <template>
   <div id="container" class="card">
     <h1>Ticket transscripts for this server.</h1>
-    <div class="flex-container" id="parent" v-if="urls.length > 0">
+    <div class="flex-container" id="parent" v-if="transscripts > 0">
       <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
         <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
       </div>
@@ -46,7 +46,7 @@ export default {
           });
 
         }
-
+        this.transscripts = Object.keys(this.urls).length;
       })
       .catch((error) => {
         console.log(error);
@@ -55,7 +55,7 @@ export default {
   data() {
     return {
       access_token: null,
-      transscripts: null,
+      transscripts: 0,
       user: null,
       urls: {},
     };
