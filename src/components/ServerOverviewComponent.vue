@@ -14,7 +14,7 @@
     </div>
     <div id="serverOverview">
       <h2>Servers you share with the bot</h2>
-      <div id="servers" class="container">
+      <div id="servers" class="container" v-if="amountOfServers > 0">
         <div class="row">
           <div v-for="server in discordGuilds" :key="server.id" class="col">
             <div class="card" style="width: 18rem;">
@@ -28,6 +28,9 @@
             </div>
           </div>
         </div>
+      </div>
+      <div id="noServers" v-else>
+        <h3>You don't share any servers with the bot</h3>
       </div>
     </div>
 
@@ -53,6 +56,7 @@ export default {
       userId: null,
       userToken: '',
       oauthURL: '',
+      amountOfServers: 0,
     };
   },
   props: {
@@ -164,6 +168,7 @@ export default {
               }
             }
             this.discordGuilds = guildIdIconArray;
+            this.amountOfServers = guildIdIconArray.length;
           })
           .catch(console.error);
     },
