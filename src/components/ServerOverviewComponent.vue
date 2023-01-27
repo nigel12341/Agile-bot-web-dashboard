@@ -43,6 +43,7 @@
 // Import the functions you need from the SDKs you need
 import {collection, getDocs, query} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
+import {inject} from "vue";
 
 
 export default {

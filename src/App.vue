@@ -30,7 +30,7 @@ export default {
       db: db,
       app: app,
     }
-  }
+  },
 }
 </script>
 <style>
