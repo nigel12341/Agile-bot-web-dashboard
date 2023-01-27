@@ -1,8 +1,8 @@
 <template>
-  <div id="container" class="card">
-    <div class="row">
-      <h1>All your transscripts</h1>
-      <div class="col card" v-for="(url, index) in urls" :key="url">
+  <div id="container">
+    <h1>All your transscripts</h1>
+    <div class="flex-container" id="parent">
+      <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
         <h3>{{index}}</h3>
         <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
       </div>
@@ -59,5 +59,11 @@ export default {
 </script>
 
 <style scoped>
-
+#parent {
+  display: flex;
+  flex-wrap: wrap;
+}
+#child{
+  min-width: 400px;
+}
 </style>

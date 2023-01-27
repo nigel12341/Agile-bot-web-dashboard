@@ -182,17 +182,28 @@ export default {
   text-align: center;
   margin: 0px auto;
 }
-
+.btn-lg {
+  padding: 10px;
+}
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#serverOverview {
+  margin-top: 30px;
+}
 #servers {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
 }
-
-#welcome_txt {
-  font-size: 24px;
+#userOverview {
+  margin-top: 30px;
 }
-
 .serverImg, #profileImg {
   width: 100px;
   height: 100px;
