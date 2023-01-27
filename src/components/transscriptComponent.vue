@@ -1,11 +1,14 @@
 <template>
   <div id="container">
     <h1>All your transscripts</h1>
-    <div class="flex-container" id="parent">
+    <div class="flex-container" id="parent" v-if="urls.length > 0">
       <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
         <h3>{{index}}</h3>
         <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
       </div>
+    </div>
+    <div id="noTicket" v-else>
+      <h2>No tickets found!</h2>
     </div>
   </div>
 </template>
