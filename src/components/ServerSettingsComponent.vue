@@ -296,7 +296,7 @@ export default {
           if (doc.data().automod === true) {
             document.getElementById("trueAutoModToggle").checked = true;
           } else {
-            document.getElementById("AutoModToggle").checked = true;
+            document.getElementById("falseAutoModToggle").checked = true;
           }
           if (doc.data().tickets === true) {
             document.getElementById("trueTicketToggle").checked = true;
