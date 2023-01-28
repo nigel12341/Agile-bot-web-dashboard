@@ -1,49 +1,179 @@
 <template>
   <div class="card">
     <div id="botSettings" v-if=authorized>
-      <div id="settings" v-if=setupStatusBackend>
+      <div id="settings " v-if=setupStatusBackend>
         <h2>Bot settings</h2>
         <h4>You can also change these settings in discord using the /setup command!</h4>
 
-        <div id="currentSettings">
-          <h3>Current settings</h3>
-          <p>Prefix: {{ prefix }}</p>
-          <p>Mod role id: {{ modRole }}</p>
-          <p>Admin role id: {{ adminRole }}</p>
-          <p>Staff role id: {{ staffRole }}</p>
-          <p>Ticket catagory id: {{ ticketCatagory }}</p>
-        </div>
-        <div id="changeSettings">
-          <h3>Change settings</h3>
-          <h5>Please note the id you input will not be checked if they are correct. For a better setup run /setup in
-            discord!</h5>
+        <div class="d-grid gap-2 col-6 mx-auto" id="roleSettings">
 
-          <div id="prefix">
-            <h4>Change prefix</h4>
-            <input type="text" id="prefixInput" placeholder="New prefix">
-            <button id="prefixButton" class="btn btn-primary" @click="changePrefix">Change prefix</button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoleSettings"
+                  aria-expanded="false" aria-controls="collapseRoleSettings">
+            Role settings
+          </button>
+
+          <div class="collapse" id="collapseRoleSettings">
+            <div class="card card-body">
+              <form class="form-control">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Admin role</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="adminRoleInput" :placeholder=adminRole
+                         aria-label="admin role">
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Moderator role</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="moderatorRoleInput" :placeholder=modRole aria-label="admin role">
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Helper role</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="helperRoleInput" :placeholder=helperRole aria-label="admin role">
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Staff role</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="staffRoleInput" :placeholder=staffRole aria-label="admin role">
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Muted role</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="mutedRoleInput" :placeholder=mutedRole aria-label="admin role">
+                </div>
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
+              </form>
+            </div>
           </div>
-          <div id="modRole">
-            <h4>Change mod role</h4>
-            <input type="text" id="modRoleInput" placeholder="New mod role id">
-            <button id="modRoleButton" class="btn btn-primary" @click="changeModRole">Change mod role</button>
+        </div>
+        <div class="d-grid gap-2 col-6 mx-auto" id="accessSettings">
+
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseAccessSettings" aria-expanded="false" aria-controls="collapseAccessSettings">
+            Access settings
+          </button>
+
+          <div class="collapse" id="collapseAccessSettings">
+            <div class="card card-body">
+              <div class="collapse" id="collapseAccessSettings">
+                <div class="card card-body">
+                  <form class="form-control">
+                    <h4>Allow helper in tickets</h4>
+
+                    <input type="radio" class="btn-check" name="helperTicketPerms" id="trueHelperInTicket"
+                           autocomplete="off" value="true" checked>
+                    <label class="btn btn-outline-success" for="trueHelperInTicket">Yes</label>
+
+                    <input type="radio" class="btn-check" name="helperTicketPerms" id="falseHelperInTicket"
+                           autocomplete="off" value="false">
+                    <label class="btn btn-outline-danger" for="falseHelperInTicket">No</label>
+
+                    <h4>Allow moderator to ban</h4>
+                    <input type="radio" class="btn-check" name="moderatorBanAccess" id="trueModUseBan"
+                           autocomplete="off" value="true" checked>
+                    <label class="btn btn-outline-success" for="trueModUseBan">Yes</label>
+
+                    <input type="radio" class="btn-check" name="moderatorBanAccess" id="falseModUseBan"
+                           autocomplete="off" value="false">
+                    <label class="btn btn-outline-danger" for="falseModUseBan">No</label>
+                    <br>
+                    <button id="saveAccessSettingsBtn" class="btn btn-success" @click="saveAccessSettings()">Save</button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="adminRole">
-            <h4>Change admin role</h4>
-            <input type="text" id="adminRoleInput" placeholder="New admin role id">
-            <button id="adminRoleButton" class="btn btn-primary" @click="changeAdminRole">Change admin role</button>
+        </div>
+        <div class="d-grid gap-2 col-6 mx-auto" id="categorySettings">
+
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseCatagorySettings" aria-expanded="false"
+                  aria-controls="collapseCatagorySettings">
+            Category settings
+          </button>
+
+          <div class="collapse" id="collapseCatagorySettings">
+            <div class="card card-body">
+              <form class="form-control">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Ticket category</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="ticketCategoryInput" :placeholder=ticketCategory aria-label="admin role">
+                </div>
+                <button id="saveCategorySettingsBtn" class="btn btn-success" @click="saveCategorySettings()">Save</button>
+              </form>
+            </div>
           </div>
-          <div id="staffRole">
-            <h4>Change staff role</h4>
-            <input type="text" id="staffRoleInput" placeholder="New staff role id">
-            <button id="staffRoleButton" class="btn btn-primary" @click="changeStaffRole">Change staff role</button>
+        </div>
+        <div class="d-grid gap-2 col-6 mx-auto" id="channelSettings">
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseChannelSettings" aria-expanded="false"
+                  aria-controls="collapseChannelSettings">
+            Channel settings
+          </button>
+          <div class="collapse" id="collapseChannelSettings">
+            <div class="card card-body">
+              <form class="form-control">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Logs channel</span>
+                  <span class="input-group-text">ID:</span>
+                  <input type="text" class="form-control" id="logsChannelInput" :placeholder=logsChannel aria-label="admin role">
+                </div>
+                <button id="saveChannelSettingsBtn" class="btn btn-success" @click="saveChannelSettings()">Save</button>
+              </form>
+            </div>
           </div>
-          <div id="ticketCatagory">
-            <h4>Change ticket catagory</h4>
-            <input type="text" id="ticketCatagoryInput" placeholder="New ticket catagory id">
-            <button id="ticketCatagoryButton" class="btn btn-primary" @click="changeTicketCatagory">Change ticket
-              catagory
-            </button>
+        </div>
+        <div class="d-grid gap-2 col-6 mx-auto" id="featureToggles">
+
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseFeatureToggleSettings" aria-expanded="false"
+                  aria-controls="collapseFeatureToggleSettings">
+            Feature toggles
+          </button>
+          <div class="collapse" id="collapseFeatureToggleSettings">
+            <div class="card card-body">
+              <form class="form-control">
+                <h4>Automod</h4>
+
+                <input type="radio" class="btn-check" name="autoModToggle" id="trueAutoModToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueAutoModToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="autoModToggle" id="falseAutoModToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseAutoModToggle">No</label>
+
+                <h4>Logs</h4>
+                <input type="radio" class="btn-check" name="logsToggle" id="trueLogsToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueLogsToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="logsToggle" id="falseLogsToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseLogsToggle">No</label>
+
+                <h4>Moderation commands</h4>
+                <input type="radio" class="btn-check" name="modCommandsToggle" id="trueModCommandsToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueModCommandsToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="modCommandsToggle" id="falseModCommandsToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseModCommandsToggle">No</label>
+
+                <h4>Tickets</h4>
+                <input type="radio" class="btn-check" name="ticketToggle" id="trueTicketToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueTicketToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="ticketToggle" id="falseTicketToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseTicketToggle">No</label>
+                <br>
+                <button class="btn btn-success" id="saveFeatureTogglesBtn" @click="saveFeaturesToggleSettings()">Save</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -62,25 +192,32 @@
       <h2>You are not authorized to change bot settings!</h2>
     </div>
   </div>
+
 </template>
 
 <script>
-import {doc, getDoc, onSnapshot, setDoc} from "firebase/firestore";
+import {doc, getDoc, onSnapshot, updateDoc} from "firebase/firestore";
 
 export default {
   name: "ServerSettingsComponent",
   data() {
     return {
-      ticketCatagory: null,
-      prefix: "unavailable",
-      modRole: "unavailable",
-      adminRole: "unavailable",
-      staffRole: "unavailable",
+      modRole: "Unavailable",
+      adminRole: "Unavailable",
+      staffRole: "Unavailable",
+      helperRole: "Unavailable",
+      mutedRole: "Unavailable",
+      logsChannel: "Unavailable",
+      ticketCategory: "Unavailable",
+      helperTicketAcces: "Unavailable",
+      moderatorBanAccess: "Unavailable",
+
       setupStatusBackend: false,
-      access_token: null,
-      serverId: null,
       authorized: false,
       fetchFailed: false,
+
+      access_token: null,
+      serverId: null,
     }
   },
   props: {
@@ -92,57 +229,87 @@ export default {
 
   methods: {
     async fetchSettings() {
-      await onSnapshot(doc(this.db, "Guilds", this.serverId), (doc) => {
-        this.ticketCatagory = doc.data().ticketCat;
-        this.prefix = ((doc.data().prefix) ? doc.data().prefix : "Not set");
-        this.modRole = ((doc.data().moderatorRoleId) ? doc.data().moderatorRoleId : "Not set");
-        this.adminRole = ((doc.data().adminRoleId) ? doc.data().adminRoleId : "Not set")
-        this.staffRole = ((doc.data().staffRoleId) ? doc.data().staffRoleId : "Not set");
-        this.setupStatusBackend = doc.data().setup;
+
+      const createSettingsCatagoriesRef = doc(this.db, "Guilds", this.serverId, "settings", "catagories");
+      const createSettingsAccessRef = doc(this.db, "Guilds", this.serverId, "settings", "access");
+      const createSettingsRolesRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
+      const createSettingsChannelsRef = doc(this.db, "Guilds", this.serverId, "settings", "channels");
+      const createfeaturesEnabledSettingsRef = doc(this.db, "Guilds", this.serverId, "settings", "featuresEnabled");
+      const createSetupStatusRef = doc(this.db, "Guilds", this.serverId);
+
+      const docSnap = await getDoc(createSetupStatusRef);
+      if (docSnap.exists()) {
+        this.setupStatusBackend = docSnap.data().setup;
+      } else {
+        this.setupStatusBackend = false;
+      }
+
+      onSnapshot(createSettingsAccessRef, (doc) => {
+        if (doc.exists()) {
+          if (doc.data().helperTicket === true) {
+            document.getElementById("trueHelperInTicket").checked = true;
+          } else {
+            document.getElementById("falseHelperInTicket").checked = true;
+          }
+          if (doc.data().moderatorBan === true) {
+            document.getElementById("trueModUseBan").checked = true;
+          } else {
+            document.getElementById("falseModUseBan").checked = true;
+          }
+        }
       });
-    },
-    async changeTicketCatagory() {
 
+      onSnapshot(createSettingsCatagoriesRef, (doc) => {
+        if (doc.exists()) {
+          this.ticketCategory = doc.data().ticketId;
+        }
+      });
 
-      const newTicketCatagory = document.getElementById("ticketCatagoryInput").value;
+      onSnapshot(createSettingsChannelsRef, (doc) => {
+        if (doc.exists()) {
+          this.logsChannel = doc.data().logsId;
+        }
+      });
 
-      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
-        ticketCat: newTicketCatagory
-      }, {merge: true});
-    },
-    async changePrefix() {
-      const newPrefix = document.getElementById("prefixInput").value;
+      onSnapshot(createSettingsRolesRef, (doc) => {
+        if (doc.exists()) {
+          this.modRole = doc.data().moderatorRoleId;
+          this.adminRole = doc.data().adminRoleId;
+          this.staffRole = doc.data().staffRoleId;
+          this.helperRole = doc.data().helperRoleId;
+          this.mutedRole = doc.data().mutedRoleId;
+        }
+      });
 
-      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
-        prefix: newPrefix
-      }, {merge: true});
-    },
-    async changeModRole() {
-      const newModRole = document.getElementById("modRoleInput").value;
-
-      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
-        moderatorRoleId: newModRole
-      }, {merge: true});
-    },
-    async changeAdminRole() {
-      const newAdminRole = document.getElementById("adminRoleInput").value;
-
-      await setDoc(doc(this.db, "Guilds", this.serverId), {
-        adminRoleId: newAdminRole
-      }, {merge: true});
-    },
-    async changeStaffRole() {
-      const newStaffRole = document.getElementById("staffRoleInput").value;
-
-      await setDoc(doc(this.db, "Guilds", this.$route.query.id), {
-        staffRoleId: newStaffRole
-      }, {merge: true});
+      onSnapshot(createfeaturesEnabledSettingsRef, (doc) => {
+        if (doc.exists()) {
+          if (doc.data().logs === true) {
+            document.getElementById("trueLogsToggle").checked = true;
+          } else {
+            document.getElementById("falseLogsToggle").checked = true;
+          }
+          if (doc.data().moderation === true) {
+            document.getElementById("trueModCommandsToggle").checked = true;
+          } else {
+            document.getElementById("falseModCommandsToggle").checked = true;
+          }
+          if (doc.data().automod === true) {
+            document.getElementById("trueAutoModToggle").checked = true;
+          } else {
+            document.getElementById("falseAutoModToggle").checked = true;
+          }
+          if (doc.data().tickets === true) {
+            document.getElementById("trueTicketToggle").checked = true;
+          } else {
+            document.getElementById("falseTicketToggle").checked = true;
+          }
+        }
+      });
     },
     async authorize() {
       this.fetchFailed = false;
-      const docRef = doc(this.db, "Guilds", this.serverId);
+      const docRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
       const docSnap = await getDoc(docRef);
-
 
       await fetch(`https://discord.com/api/users/@me/guilds/${this.serverId}/member`, {
         headers: {
@@ -170,8 +337,83 @@ export default {
             }
           })
           .catch(console.error);
-    }
+    },
+    async saveRoleSettings() {
+      const adminRoleInput = document.getElementById("adminRoleInput").value;
+      const moderatorRoleInput = document.getElementById("moderatorRoleInput").value;
+      const staffRoleInput = document.getElementById("staffRoleInput").value;
+      const helperRoleInput = document.getElementById("helperRoleInput").value;
+      const mutedRoleInput = document.getElementById("mutedRoleInput").value;
+
+      const createSettingsRolesRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
+      await updateDoc(createSettingsRolesRef, {
+        adminRoleId: ((adminRoleInput === "") ? this.adminRole : adminRoleInput),
+        moderatorRoleId: ((moderatorRoleInput === "") ? this.modRole : moderatorRoleInput),
+        staffRoleId: ((staffRoleInput === "") ? this.staffRole : staffRoleInput),
+        helperRoleId: ((helperRoleInput === "") ? this.helperRole : helperRoleInput),
+        mutedRoleId: ((mutedRoleInput === "") ? this.mutedRole : mutedRoleInput),
+      });
+      alert("Role settings saved!")
+      this.$router.go()
+    },
+    async saveChannelSettings() {
+      const logsChannelInput = document.getElementById("logsChannelInput").value;
+
+      const createSettingsChannelsRef = doc(this.db, "Guilds", this.serverId, "settings", "channels");
+      await updateDoc(createSettingsChannelsRef, {
+        logsId: ((logsChannelInput === "") ? this.logsChannel : logsChannelInput),
+      });
+      alert("Channel settings saved!")
+      this.$router.go()
+    },
+    async saveAccessSettings() {
+      let helperTicketInput = document.querySelector('input[name="helperTicketPerms"]:checked').value;
+      let moderatorBanInput = document.querySelector('input[name="moderatorBanAccess"]:checked').value;
+
+      helperTicketInput = (helperTicketInput === "true")
+      moderatorBanInput = (moderatorBanInput === "true")
+
+      const createSettingsAccessRef = doc(this.db, "Guilds", this.serverId, "settings", "access");
+      await updateDoc(createSettingsAccessRef, {
+        helperTicket: helperTicketInput,
+        moderatorBan: moderatorBanInput
+      });
+      alert("Access settings saved!")
+      this.$router.go()
+    },
+    async saveCategorySettings() {
+      const ticketCategoryInput = document.getElementById("ticketCategoryInput").value;
+
+      const createSettingsCategoriesRef = doc(this.db, "Guilds", this.serverId, "settings", "catagories");
+      await updateDoc(createSettingsCategoriesRef, {
+        ticketId: ((ticketCategoryInput === "") ? this.ticketCategory : ticketCategoryInput),
+      });
+      alert("Category settings saved!")
+      this.$router.go()
+    },
+    async saveFeaturesToggleSettings() {
+      let logsToggle = document.querySelector('input[name="logsToggle"]:checked').value;
+      let modCommandsToggle = document.querySelector('input[name="modCommandsToggle"]:checked').value;
+      let autoModToggle = document.querySelector('input[name="autoModToggle"]:checked').value;
+      let ticketToggle = document.querySelector('input[name="ticketToggle"]:checked').value;
+
+      logsToggle = (logsToggle === "true")
+      modCommandsToggle = (modCommandsToggle === "true")
+      autoModToggle = (autoModToggle === "true")
+      ticketToggle = (ticketToggle === "true")
+
+      const createSettingsFeaturesToggleRef = doc(this.db, "Guilds", this.serverId, "settings", "featuresEnabled");
+      await updateDoc(createSettingsFeaturesToggleRef, {
+        logs: logsToggle,
+        moderation: modCommandsToggle,
+        automod: autoModToggle,
+        tickets: ticketToggle,
+      });
+      alert("Features toggle settings saved!")
+      this.$router.go()
+    },
   },
+
   async mounted() {
     this.access_token = this.$route.query.access_token;
     this.serverId = this.$route.query.id;

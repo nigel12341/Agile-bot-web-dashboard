@@ -43,7 +43,6 @@
 // Import the functions you need from the SDKs you need
 import {collection, getDocs, query} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
-import {inject} from "vue";
 
 
 export default {
@@ -93,8 +92,8 @@ export default {
         this.loggedIn = true;
       }
       const accessToken = fragment.get('access_token');
+
       // I prefer to use fetch
-      // you can use use axios as an alternative
       fetch('https://discord.com/api/users/@me', {
         headers: {
           authorization: `Bearer ${accessToken}`,
