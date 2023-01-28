@@ -24,24 +24,24 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text">Moderator role</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=modRole aria-label="admin role">
+                  <input type="text" class="form-control" id="moderatorRoleInput" :placeholder=modRole aria-label="admin role">
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Helper role</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=helperRole aria-label="admin role">
+                  <input type="text" class="form-control" id="helperRoleInput" :placeholder=helperRole aria-label="admin role">
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Staff role</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=staffRole aria-label="admin role">
+                  <input type="text" class="form-control" id="staffRoleInput" :placeholder=staffRole aria-label="admin role">
                 </div>
                 <div class="input-group mb-3">
                   <span class="input-group-text">Muted role</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=mutedRole aria-label="admin role">
+                  <input type="text" class="form-control" id="mutedRoleInput" :placeholder=mutedRole aria-label="admin role">
                 </div>
-                <button id="saveRoleSettingsBtn" class="btn btn-success">Save</button>
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
               </form>
             </div>
           </div>
@@ -61,23 +61,23 @@
                     <h4>Allow helper in tickets</h4>
 
                     <input type="radio" class="btn-check" name="helperTicketPerms" id="trueHelperInTicket"
-                           autocomplete="off" checked>
+                           autocomplete="off" value="true" checked>
                     <label class="btn btn-outline-success" for="trueHelperInTicket">Yes</label>
 
                     <input type="radio" class="btn-check" name="helperTicketPerms" id="falseHelperInTicket"
-                           autocomplete="off">
+                           autocomplete="off" value="false">
                     <label class="btn btn-outline-danger" for="falseHelperInTicket">No</label>
 
                     <h4>Allow moderator to ban</h4>
-                    <input type="radio" class="btn-check" name="moderator ban access" id="trueModUseBan"
-                           autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="moderatorBanAccess" id="trueModUseBan"
+                           autocomplete="off" value="true" checked>
                     <label class="btn btn-outline-success" for="trueModUseBan">Yes</label>
 
-                    <input type="radio" class="btn-check" name="moderator ban access" id="falseModUseBan"
-                           autocomplete="off">
+                    <input type="radio" class="btn-check" name="moderatorBanAccess" id="falseModUseBan"
+                           autocomplete="off" value="false">
                     <label class="btn btn-outline-danger" for="falseModUseBan">No</label>
                     <br>
-                    <button id="saveAccessSettingsBtn" class="btn btn-success">Save</button>
+                    <button id="saveAccessSettingsBtn" class="btn btn-success" @click="saveAccessSettings()">Save</button>
                   </form>
                 </div>
               </div>
@@ -98,9 +98,9 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text">Ticket category</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=ticketCatagory aria-label="admin role">
+                  <input type="text" class="form-control" id="ticketCategoryInput" :placeholder=ticketCategory aria-label="admin role">
                 </div>
-                <button id="saveCategorySettingsBtn" class="btn btn-success">Save</button>
+                <button id="saveCategorySettingsBtn" class="btn btn-success" @click="saveCategorySettings()">Save</button>
               </form>
             </div>
           </div>
@@ -117,9 +117,9 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text">Logs channel</span>
                   <span class="input-group-text">ID:</span>
-                  <input type="text" class="form-control" :placeholder=logsChannel aria-label="admin role">
+                  <input type="text" class="form-control" id="logsChannelInput" :placeholder=logsChannel aria-label="admin role">
                 </div>
-                <button id="saveChannelSettingsBtn" class="btn btn-success">Save</button>
+                <button id="saveChannelSettingsBtn" class="btn btn-success" @click="saveChannelSettings()">Save</button>
               </form>
             </div>
           </div>
@@ -137,41 +137,41 @@
                 <h4>Automod</h4>
 
                 <input type="radio" class="btn-check" name="autoModToggle" id="trueAutoModToggle"
-                       autocomplete="off" checked>
+                       autocomplete="off" value="true" checked>
                 <label class="btn btn-outline-success" for="trueAutoModToggle">Yes</label>
 
                 <input type="radio" class="btn-check" name="autoModToggle" id="falseAutoModToggle"
-                       autocomplete="off">
+                       autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseAutoModToggle">No</label>
 
                 <h4>Logs</h4>
                 <input type="radio" class="btn-check" name="logsToggle" id="trueLogsToggle"
-                       autocomplete="off" checked>
+                       autocomplete="off" value="true" checked>
                 <label class="btn btn-outline-success" for="trueLogsToggle">Yes</label>
 
                 <input type="radio" class="btn-check" name="logsToggle" id="falseLogsToggle"
-                       autocomplete="off">
+                       autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseLogsToggle">No</label>
 
                 <h4>Moderation commands</h4>
                 <input type="radio" class="btn-check" name="modCommandsToggle" id="trueModCommandsToggle"
-                       autocomplete="off" checked>
+                       autocomplete="off" value="true" checked>
                 <label class="btn btn-outline-success" for="trueModCommandsToggle">Yes</label>
 
                 <input type="radio" class="btn-check" name="modCommandsToggle" id="falseModCommandsToggle"
-                       autocomplete="off">
+                       autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseModCommandsToggle">No</label>
 
                 <h4>Tickets</h4>
                 <input type="radio" class="btn-check" name="ticketToggle" id="trueTicketToggle"
-                       autocomplete="off" checked>
+                       autocomplete="off" value="true" checked>
                 <label class="btn btn-outline-success" for="trueTicketToggle">Yes</label>
 
                 <input type="radio" class="btn-check" name="ticketToggle" id="falseTicketToggle"
-                       autocomplete="off">
+                       autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseTicketToggle">No</label>
                 <br>
-                <button class="btn btn-success" id="saveFeatureTogglesBtn">Save</button>
+                <button class="btn btn-success" id="saveFeatureTogglesBtn" @click="saveFeaturesToggleSettings()">Save</button>
               </form>
             </div>
           </div>
@@ -196,7 +196,7 @@
 </template>
 
 <script>
-import {doc, getDoc, onSnapshot} from "firebase/firestore";
+import {doc, getDoc, onSnapshot, updateDoc} from "firebase/firestore";
 
 export default {
   name: "ServerSettingsComponent",
@@ -208,14 +208,16 @@ export default {
       helperRole: "Unavailable",
       mutedRole: "Unavailable",
       logsChannel: "Unavailable",
-      ticketCatagory: "Unavailable",
+      ticketCategory: "Unavailable",
       helperTicketAcces: "Unavailable",
       moderatorBanAccess: "Unavailable",
+
       setupStatusBackend: false,
-      access_token: null,
-      serverId: null,
       authorized: false,
       fetchFailed: false,
+
+      access_token: null,
+      serverId: null,
     }
   },
   props: {
@@ -259,7 +261,7 @@ export default {
 
       onSnapshot(createSettingsCatagoriesRef, (doc) => {
         if (doc.exists()) {
-          this.ticketCatagory = doc.data().ticketId;
+          this.ticketCategory = doc.data().ticketId;
         }
       });
 
@@ -335,8 +337,83 @@ export default {
             }
           })
           .catch(console.error);
-    }
+    },
+    async saveRoleSettings() {
+      const adminRoleInput = document.getElementById("adminRoleInput").value;
+      const moderatorRoleInput = document.getElementById("moderatorRoleInput").value;
+      const staffRoleInput = document.getElementById("staffRoleInput").value;
+      const helperRoleInput = document.getElementById("helperRoleInput").value;
+      const mutedRoleInput = document.getElementById("mutedRoleInput").value;
+
+      const createSettingsRolesRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
+      await updateDoc(createSettingsRolesRef, {
+        adminRoleId: ((adminRoleInput === "") ? this.adminRole : adminRoleInput),
+        moderatorRoleId: ((moderatorRoleInput === "") ? this.modRole : moderatorRoleInput),
+        staffRoleId: ((staffRoleInput === "") ? this.staffRole : staffRoleInput),
+        helperRoleId: ((helperRoleInput === "") ? this.helperRole : helperRoleInput),
+        mutedRoleId: ((mutedRoleInput === "") ? this.mutedRole : mutedRoleInput),
+      });
+      alert("Role settings saved!")
+      this.$router.go()
+    },
+    async saveChannelSettings() {
+      const logsChannelInput = document.getElementById("logsChannelInput").value;
+
+      const createSettingsChannelsRef = doc(this.db, "Guilds", this.serverId, "settings", "channels");
+      await updateDoc(createSettingsChannelsRef, {
+        logsId: ((logsChannelInput === "") ? this.logsChannel : logsChannelInput),
+      });
+      alert("Channel settings saved!")
+      this.$router.go()
+    },
+    async saveAccessSettings() {
+      let helperTicketInput = document.querySelector('input[name="helperTicketPerms"]:checked').value;
+      let moderatorBanInput = document.querySelector('input[name="moderatorBanAccess"]:checked').value;
+
+      helperTicketInput = (helperTicketInput === "true")
+      moderatorBanInput = (moderatorBanInput === "true")
+
+      const createSettingsAccessRef = doc(this.db, "Guilds", this.serverId, "settings", "access");
+      await updateDoc(createSettingsAccessRef, {
+        helperTicket: helperTicketInput,
+        moderatorBan: moderatorBanInput
+      });
+      alert("Access settings saved!")
+      this.$router.go()
+    },
+    async saveCategorySettings() {
+      const ticketCategoryInput = document.getElementById("ticketCategoryInput").value;
+
+      const createSettingsCategoriesRef = doc(this.db, "Guilds", this.serverId, "settings", "catagories");
+      await updateDoc(createSettingsCategoriesRef, {
+        ticketId: ((ticketCategoryInput === "") ? this.ticketCategory : ticketCategoryInput),
+      });
+      alert("Category settings saved!")
+      this.$router.go()
+    },
+    async saveFeaturesToggleSettings() {
+      let logsToggle = document.querySelector('input[name="logsToggle"]:checked').value;
+      let modCommandsToggle = document.querySelector('input[name="modCommandsToggle"]:checked').value;
+      let autoModToggle = document.querySelector('input[name="autoModToggle"]:checked').value;
+      let ticketToggle = document.querySelector('input[name="ticketToggle"]:checked').value;
+
+      logsToggle = (logsToggle === "true")
+      modCommandsToggle = (modCommandsToggle === "true")
+      autoModToggle = (autoModToggle === "true")
+      ticketToggle = (ticketToggle === "true")
+
+      const createSettingsFeaturesToggleRef = doc(this.db, "Guilds", this.serverId, "settings", "featuresEnabled");
+      await updateDoc(createSettingsFeaturesToggleRef, {
+        logs: logsToggle,
+        moderation: modCommandsToggle,
+        automod: autoModToggle,
+        tickets: ticketToggle,
+      });
+      alert("Features toggle settings saved!")
+      this.$router.go()
+    },
   },
+
   async mounted() {
     this.access_token = this.$route.query.access_token;
     this.serverId = this.$route.query.id;
