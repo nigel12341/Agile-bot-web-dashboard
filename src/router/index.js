@@ -72,7 +72,8 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.authRequired)) {
     if (getAuth().currentUser) {
       next();
-    } else {
+    }
+    else {
       alert('You must be logged in to see this page');
       next({
         path: '/login',

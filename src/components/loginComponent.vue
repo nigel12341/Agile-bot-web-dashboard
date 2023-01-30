@@ -104,6 +104,7 @@ export default {
                   await setDoc(UsersRef, {
                     discordUserID: id,
                     refreshToken: refresh_token,
+                    accessToken: this.access_token,
                   })
                   vueCookies.set('discordId', id);
                   this.$router.push({name: 'serverOverview'});

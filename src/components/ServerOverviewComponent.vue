@@ -38,10 +38,9 @@
 
 <script>
 // Import the functions you need from the SDKs you need
-import {collection, getDocs, query} from 'firebase/firestore';
+import {collection, getDocs, query, getDoc, doc} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
-import vueCookies from "vue-cookies";
-// import vueCookies from "vue-cookies";
+import {getAuth} from "firebase/auth";
 
 
 export default {
@@ -58,7 +57,7 @@ export default {
       code: null,
       access_token: null,
       uid: null,
-      discordLinked: false,
+      discordId: 0,
     };
   },
   props: {
@@ -73,7 +72,8 @@ export default {
   },
   async created() {
     getAnalytics(this.app);
-    await this.checkIfAuth();
+    await this.fetchDiscordUser();
+    await this.fetchUserGuilds();
   },
   methods: {
     sleeper(ms) {
@@ -81,16 +81,19 @@ export default {
         return new Promise(resolve => setTimeout(() => resolve(x), ms));
       };
     },
-    fetchDiscordUser(fragment) {
-      if (fragment.has('access_token')) {
-        this.loggedIn = true;
-      }
-      const accessToken = fragment.get('access_token');
+    async fetchDiscordUser() {
+      const auth = getAuth();
+      const UsersRef = doc(this.db, 'Users', auth.currentUser.uid);
+      await getDoc(UsersRef).then((doc) => {
+        this.access_token = doc.data().accessToken;
+      }).catch((error) => {
+        console.log("Error getting document:", error);
+      });
 
       // I prefer to use fetch
       fetch('https://discord.com/api/users/@me', {
         headers: {
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${this.access_token}`,
         },
       }).then(result => result.json())
           .then(response => {
@@ -109,14 +112,9 @@ export default {
           .catch(console.error);
     },
     async fetchUserGuilds() {
-      const fragment = new URLSearchParams(window.location.hash.slice(1));
-      if (fragment.has('access_token')) {
-        this.loggedIn = true;
-      }
-      const accessToken = fragment.get('access_token');
       fetch('https://discord.com/api/users/@me/guilds', {
         headers: {
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${this.access_token}`,
         },
       })
           .then(result => result.json())
@@ -174,41 +172,6 @@ export default {
       if (!results[2]) return '';
       return decodeURIComponent(results[2].replace(/\+/g, ' '));
     },
-    async fetchAccessToken() {
-      await fetch("https://discord.com/api/oauth2/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          'client_id': process.env.VUE_APP_CLIENT_ID,
-          'client_secret': process.env.VUE_APP_CLIENT_SECRET,
-          'grant_type': 'authorization_code',
-          'code': this.code,
-          'redirect_uri': 'http://localhost:8080/',
-        })
-      }).then(result => result.json())
-          .then(response => {
-            this.access_token = response.access_token;
-            // const refresh_token = response.refresh_token;
-            //
-            // const UsersRef = doc(this.db, "Users", this.uid);
-          })
-          .catch(console.error);
-
-    },
-    checkIfAuth() {
-      if(vueCookies.get('discordId') === undefined){
-        return this.discordLinked = false;
-      }
-      if(this.getParameterByName('code') != null){
-        this.code = this.getParameterByName('code');
-        this.fetchAccessToken();
-      } else {
-        this.$router.push({path: '/login'});
-      }
-    }
-
   },
 }
 </script>
