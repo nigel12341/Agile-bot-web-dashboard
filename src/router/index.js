@@ -3,6 +3,7 @@ import StatsComponent from "@/components/ServerOverviewComponent.vue";
 import logOutComponent from "@/components/logOutComponent.vue";
 import ServerView from "@/views/ServerView.vue";
 import UserView from "@/views/UserView.vue";
+import LoginComponent from "@/components/loginComponent.vue";
 
 const routes = [
   {
@@ -28,7 +29,13 @@ const routes = [
     path: '/userView',
     name: 'userView',
     component: UserView
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginComponent
   }
+
 ]
 
 const router = createRouter({

@@ -172,7 +172,6 @@ export default {
           })
           .catch(console.error);
     },
-
   },
 }
 </script>
