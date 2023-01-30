@@ -197,6 +197,7 @@
 
 <script>
 import {doc, getDoc, onSnapshot, updateDoc} from "firebase/firestore";
+import {getAuth} from "firebase/auth";
 
 export default {
   name: "ServerSettingsComponent",
@@ -308,8 +309,14 @@ export default {
     },
     async authorize() {
       this.fetchFailed = false;
+      const auth = getAuth();
       const docRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
       const docSnap = await getDoc(docRef);
+
+      const UsersRef = doc(this.db, "Users", auth.currentUser.uid);
+      await getDoc(UsersRef).then(doc => {
+        this.access_token = doc.data().accessToken;
+      });
 
       await fetch(`https://discord.com/api/users/@me/guilds/${this.serverId}/member`, {
         headers: {

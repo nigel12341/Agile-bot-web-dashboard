@@ -1,9 +1,6 @@
 <template>
 
-  <a v-if=!loggedIn id='login-link'
-     :href=oauthURL>Login
-    with Discord</a>
-  <div v-else>
+  <div>
     <h1>Welcome</h1>
     <img id="profileImg" src="../assets/Discord-Logo.png" alt="Profile Picture">
     <h2>{{ discordData }}</h2>
@@ -21,7 +18,7 @@
               <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
               <div class="card-body">
                 <h5 class="card-title">{{ server.guildName }}</h5>
-                <router-link :to="{path:'/serverstats',query:{id: server.guildId, access_token: userToken}}">
+                <router-link :to="{path:'/serverstats',query:{id: server.guildId}}">
                   <button class="btn btn-primary">Manage</button>
                 </router-link>
               </div>
@@ -41,8 +38,9 @@
 
 <script>
 // Import the functions you need from the SDKs you need
-import {collection, getDocs, query} from 'firebase/firestore';
+import {collection, getDocs, query, getDoc, doc} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
+import {getAuth} from "firebase/auth";
 
 
 export default {
@@ -55,8 +53,12 @@ export default {
       userPfp: null,
       userId: null,
       userToken: '',
-      oauthURL: '',
       amountOfServers: 0,
+      code: null,
+      access_token: null,
+      uid: null,
+      discordId: 0,
+      refreshed: false,
     };
   },
   props: {
@@ -69,42 +71,36 @@ export default {
       required: true
     }
   },
-  created() {
-    this.oauthURL = process.env.VUE_APP_OAUTH_URL;
+  async created() {
     getAnalytics(this.app);
-    const fragment = new URLSearchParams(window.location.hash.slice(1));
-    this.userToken = fragment.get('access_token')
-    if (!fragment.has('access_token')) {
-      return;
-    }
-
-    this.fetchDiscordUser(fragment);
-    this.fetchUserGuilds();
+    await new Promise(r => setTimeout(r, 500));
+    await this.fetchDiscordUser();
+    await this.fetchUserGuilds();
   },
   methods: {
-    sleeper(ms) {
-      return function (x) {
-        return new Promise(resolve => setTimeout(() => resolve(x), ms));
-      };
-    },
-    fetchDiscordUser(fragment) {
-      if (fragment.has('access_token')) {
-        this.loggedIn = true;
-      }
-      const accessToken = fragment.get('access_token');
-
+    async fetchDiscordUser() {
+      const auth = getAuth();
+      const UsersRef = doc(this.db, 'Users', auth.currentUser.uid);
+      await getDoc(UsersRef).then((doc) => {
+        this.access_token = doc.data().accessToken;
+      }).catch((error) => {
+        console.log("Error getting document:", error);
+      });
       // I prefer to use fetch
       fetch('https://discord.com/api/users/@me', {
         headers: {
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${this.access_token}`,
         },
       }).then(result => result.json())
           .then(response => {
+            if(response.message === "401: Unauthorized") {
+              this.$router.push({name: 'login'});
+            }
             const {username, discriminator, id, avatar} = response;
             this.discordData = username + '#' + discriminator;
             this.userId = id;
 
-            if(avatar != null){
+            if (avatar != null) {
               fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
                   .then(response => {
                     document.getElementById("profileImg").src = response.url;
@@ -115,14 +111,9 @@ export default {
           .catch(console.error);
     },
     async fetchUserGuilds() {
-      const fragment = new URLSearchParams(window.location.hash.slice(1));
-      if (fragment.has('access_token')) {
-        this.loggedIn = true;
-      }
-      const accessToken = fragment.get('access_token');
       fetch('https://discord.com/api/users/@me/guilds', {
         headers: {
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${this.access_token}`,
         },
       })
           .then(result => result.json())
@@ -142,7 +133,6 @@ export default {
 
             for (const element of response) {
               if (guildsBotIsIn.includes(element.id)) {
-                await this.sleeper(2000);
                 let guildId = element.id;
                 let guildIcon = element.icon;
                 let guildName = element.name;
@@ -172,7 +162,14 @@ export default {
           })
           .catch(console.error);
     },
-
+    getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    },
   },
 }
 </script>
@@ -182,9 +179,11 @@ export default {
   text-align: center;
   margin: 0px auto;
 }
+
 .btn-lg {
   padding: 10px;
 }
+
 .container {
   width: 100%;
   height: 100%;
@@ -193,17 +192,21 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 #serverOverview {
   margin-top: 30px;
 }
+
 #servers {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
 }
+
 #userOverview {
   margin-top: 30px;
 }
+
 .serverImg, #profileImg {
   width: 100px;
   height: 100px;
