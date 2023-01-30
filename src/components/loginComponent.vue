@@ -26,11 +26,11 @@
       </div>
     </form>
   </div>
-  <div v-else>
+  <div v-else-if="discordAuthFailed">
     <h1>Link your discord!</h1>
     <p>Click the button below to login with Discord</p>
     <a type="button" class=" btn btn-primary"
-       href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&response_type=code&scope=identify%20guilds%20guilds.members.read">Sign
+       href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin&response_type=code&scope=identify%20guilds%20guilds.members.read">Sign
       in to discord</a>
   </div>
   <div id="firebaseui-auth-container"/>
@@ -51,6 +51,7 @@ export default {
       loggedIn: false,
       discordLinked: false,
       code: null,
+      discordAuthFailed: false,
     };
   },
   props: {
@@ -70,12 +71,14 @@ export default {
         const UsersRef = doc(this.db, "Users", this.uid);
         const docSnap = await getDoc(UsersRef);
         if (docSnap.exists()) {
-          if (docSnap.data().discordUserID === "") {
+          if (docSnap.data().discordUserID === "" || docSnap.data().accessToken === "" || docSnap.data().refreshToken === "") {
             await this.fetchAccessToken();
           }
-          this.discordLinked = true;
-          vueCookies.set('discordId', docSnap.data().discordUserID);
-          this.$router.push({name: 'serverOverview'});
+          if(!this.discordAuthFailed) {
+            this.discordLinked = true;
+            vueCookies.set('discordId', docSnap.data().discordUserID);
+            this.$router.push({name: 'serverOverview'});
+          }
         } else if (!docSnap.exists()) {
           await this.fetchAccessToken();
         }
@@ -122,12 +125,12 @@ export default {
           'client_secret': process.env.VUE_APP_CLIENT_SECRET,
           'grant_type': 'authorization_code',
           'code': this.code,
-          'redirect_uri': 'http://localhost:8080/',
+          'redirect_uri': 'http://localhost:8080/login',
         })
       }).then(result => result.json())
           .then(async response => {
             if (response.error === "invalid_grant") {
-              return await this.refreshToken();
+              await this.refreshToken();
             } else {
               this.access_token = response.access_token;
               const refresh_token = response.refresh_token;
@@ -175,28 +178,33 @@ export default {
           'client_secret': process.env.VUE_APP_CLIENT_SECRET,
           'grant_type': 'refresh_token',
           'refresh_token': docSnap.data().refreshToken,
-          'redirect_uri': 'http://localhost:8080/',
+          'redirect_uri': 'http://localhost:8080/login',
         })
       }).then(result => result.json())
           .then(async response => {
-            this.access_token = response.access_token;
-            const refresh_token = response.refresh_token;
-            vueCookies.set('access_token', this.access_token);
+            if (response.error === "invalid_grant") {
+              return this.discordAuthFailed = true;
+            } else {
+              this.access_token = response.access_token;
+              const refresh_token = response.refresh_token;
+              vueCookies.set('access_token', this.access_token);
 
-            fetch('https://discord.com/api/users/@me', {
-              headers: {
-                authorization: `Bearer ${this.access_token}`,
-              },
-            }).then(result => result.json())
-                .then(async response => {
-                  const {id} = response;
-                  await updateDoc(UsersRef, {
-                    discordUserID: id,
-                    refreshToken: refresh_token,
-                    accessToken: this.access_token,
-                  })
-                  vueCookies.set('discordId', id);
-                });
+              fetch('https://discord.com/api/users/@me', {
+                headers: {
+                  authorization: `Bearer ${this.access_token}`,
+                },
+              }).then(result => result.json())
+                  .then(async response => {
+                    const {id} = response;
+                    await updateDoc(UsersRef, {
+                      discordUserID: id,
+                      refreshToken: refresh_token,
+                      accessToken: this.access_token,
+                    })
+                    vueCookies.set('discordId', id);
+                  });
+            }
+
           });
     }
   }

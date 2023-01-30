@@ -58,6 +58,7 @@ export default {
       access_token: null,
       uid: null,
       discordId: 0,
+      refreshed: false,
     };
   },
   props: {
@@ -72,6 +73,7 @@ export default {
   },
   async created() {
     getAnalytics(this.app);
+    await new Promise(r => setTimeout(r, 500));
     await this.fetchDiscordUser();
     await this.fetchUserGuilds();
   },

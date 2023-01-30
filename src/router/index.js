@@ -10,7 +10,7 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const routes = [
   {
-    path: '/',
+    path: '/serverOverview',
     name: 'serverOverview',
     component: serverOverviewComponent,
     meta: {
@@ -43,7 +43,7 @@ const routes = [
     }
   },
   {
-    path: '/login',
+    path: '/',
     name: 'login',
     component: LoginComponent
   }
