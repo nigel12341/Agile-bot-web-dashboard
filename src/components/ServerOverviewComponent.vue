@@ -78,11 +78,6 @@ export default {
     await this.fetchUserGuilds();
   },
   methods: {
-    sleeper(ms) {
-      return function (x) {
-        return new Promise(resolve => setTimeout(() => resolve(x), ms));
-      };
-    },
     async fetchDiscordUser() {
       const auth = getAuth();
       const UsersRef = doc(this.db, 'Users', auth.currentUser.uid);
@@ -91,7 +86,6 @@ export default {
       }).catch((error) => {
         console.log("Error getting document:", error);
       });
-
       // I prefer to use fetch
       fetch('https://discord.com/api/users/@me', {
         headers: {
@@ -99,6 +93,9 @@ export default {
         },
       }).then(result => result.json())
           .then(response => {
+            if(response.message === "401: Unauthorized") {
+              this.$router.push({name: 'login'});
+            }
             const {username, discriminator, id, avatar} = response;
             this.discordData = username + '#' + discriminator;
             this.userId = id;
@@ -136,7 +133,6 @@ export default {
 
             for (const element of response) {
               if (guildsBotIsIn.includes(element.id)) {
-                await this.sleeper(2000);
                 let guildId = element.id;
                 let guildIcon = element.icon;
                 let guildName = element.name;
