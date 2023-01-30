@@ -29,9 +29,7 @@
   <div v-else-if="discordAuthFailed">
     <h1>Link your discord!</h1>
     <p>Click the button below to login with Discord</p>
-    <a type="button" class=" btn btn-primary"
-       href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin&response_type=code&scope=identify%20guilds%20guilds.members.read">Sign
-      in to discord</a>
+    <a type="button" class=" btn btn-primary" :href="oath">in to discord</a>
   </div>
   <div id="firebaseui-auth-container"/>
 </template>
@@ -52,6 +50,8 @@ export default {
       discordLinked: false,
       code: null,
       discordAuthFailed: false,
+      oath: null,
+      redirectUrl: null,
     };
   },
   props: {
@@ -61,6 +61,8 @@ export default {
     }
   },
   created() {
+    this.oath = process.env.VUE_APP_OAUTH_URL;
+    this.redirectUrl = process.env.VUE_APP_REDIRECT_URI;
     const auth = getAuth();
     this.db = getFirestore(this.app);
 
@@ -125,7 +127,7 @@ export default {
           'client_secret': process.env.VUE_APP_CLIENT_SECRET,
           'grant_type': 'authorization_code',
           'code': this.code,
-          'redirect_uri': 'http://localhost:8080/login',
+          'redirect_uri': this.redirectUrl,
         })
       }).then(result => result.json())
           .then(async response => {
@@ -178,7 +180,7 @@ export default {
           'client_secret': process.env.VUE_APP_CLIENT_SECRET,
           'grant_type': 'refresh_token',
           'refresh_token': docSnap.data().refreshToken,
-          'redirect_uri': 'http://localhost:8080/login',
+          'redirect_uri': this.redirectUrl,
         })
       }).then(result => result.json())
           .then(async response => {
