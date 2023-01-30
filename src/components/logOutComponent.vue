@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {initializeApp} from "firebase/app";
 export default {
   name: "logOutComponent",
@@ -22,7 +22,7 @@ export default {
 
     const auth = getAuth();
     if(auth.currentUser !== null) {
-      signOut(auth).then(() => {
+      auth.signOut().then(() => {
         this.$router.push({ name: 'login' })
       }).catch((error) => {
         console.error(error)
