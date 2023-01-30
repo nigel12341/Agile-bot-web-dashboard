@@ -17,8 +17,8 @@
               </h3>
 
               <p>the page you are looking for not avaible!</p>
-
-              <a href="" class="link_404">Go to Home</a>
+              
+              <router-link class="link_404" to="/">Go to Home</router-link>
             </div>
           </div>
         </div>
