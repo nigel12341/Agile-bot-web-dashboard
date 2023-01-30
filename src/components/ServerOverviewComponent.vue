@@ -1,9 +1,6 @@
 <template>
 
-  <a v-if=!loggedIn id='login-link'
-     :href=oauthURL>Login
-    with Discord</a>
-  <div v-else>
+  <div>
     <h1>Welcome</h1>
     <img id="profileImg" src="../assets/Discord-Logo.png" alt="Profile Picture">
     <h2>{{ discordData }}</h2>
@@ -43,6 +40,8 @@
 // Import the functions you need from the SDKs you need
 import {collection, getDocs, query} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
+import vueCookies from "vue-cookies";
+// import vueCookies from "vue-cookies";
 
 
 export default {
@@ -55,8 +54,11 @@ export default {
       userPfp: null,
       userId: null,
       userToken: '',
-      oauthURL: '',
       amountOfServers: 0,
+      code: null,
+      access_token: null,
+      uid: null,
+      discordLinked: false,
     };
   },
   props: {
@@ -69,17 +71,9 @@ export default {
       required: true
     }
   },
-  created() {
-    this.oauthURL = process.env.VUE_APP_OAUTH_URL;
+  async created() {
     getAnalytics(this.app);
-    const fragment = new URLSearchParams(window.location.hash.slice(1));
-    this.userToken = fragment.get('access_token')
-    if (!fragment.has('access_token')) {
-      return;
-    }
-
-    this.fetchDiscordUser(fragment);
-    this.fetchUserGuilds();
+    await this.checkIfAuth();
   },
   methods: {
     sleeper(ms) {
@@ -104,7 +98,7 @@ export default {
             this.discordData = username + '#' + discriminator;
             this.userId = id;
 
-            if(avatar != null){
+            if (avatar != null) {
               fetch(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`)
                   .then(response => {
                     document.getElementById("profileImg").src = response.url;
@@ -172,6 +166,49 @@ export default {
           })
           .catch(console.error);
     },
+    getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    },
+    async fetchAccessToken() {
+      await fetch("https://discord.com/api/oauth2/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          'client_id': process.env.VUE_APP_CLIENT_ID,
+          'client_secret': process.env.VUE_APP_CLIENT_SECRET,
+          'grant_type': 'authorization_code',
+          'code': this.code,
+          'redirect_uri': 'http://localhost:8080/',
+        })
+      }).then(result => result.json())
+          .then(response => {
+            this.access_token = response.access_token;
+            // const refresh_token = response.refresh_token;
+            //
+            // const UsersRef = doc(this.db, "Users", this.uid);
+          })
+          .catch(console.error);
+
+    },
+    checkIfAuth() {
+      if(vueCookies.get('discordId') === undefined){
+        return this.discordLinked = false;
+      }
+      if(this.getParameterByName('code') != null){
+        this.code = this.getParameterByName('code');
+        this.fetchAccessToken();
+      } else {
+        this.$router.push({path: '/login'});
+      }
+    }
+
   },
 }
 </script>
@@ -181,9 +218,11 @@ export default {
   text-align: center;
   margin: 0px auto;
 }
+
 .btn-lg {
   padding: 10px;
 }
+
 .container {
   width: 100%;
   height: 100%;
@@ -192,17 +231,21 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 #serverOverview {
   margin-top: 30px;
 }
+
 #servers {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
 }
+
 #userOverview {
   margin-top: 30px;
 }
+
 .serverImg, #profileImg {
   width: 100px;
   height: 100px;
