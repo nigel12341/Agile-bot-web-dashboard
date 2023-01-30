@@ -18,7 +18,7 @@
               <img :id="server.guildId" src="../assets/Discord-Logo.png" class="card-img-top serverImg" alt="...">
               <div class="card-body">
                 <h5 class="card-title">{{ server.guildName }}</h5>
-                <router-link :to="{path:'/serverstats',query:{id: server.guildId, access_token: userToken}}">
+                <router-link :to="{path:'/serverstats',query:{id: server.guildId}}">
                   <button class="btn btn-primary">Manage</button>
                 </router-link>
               </div>

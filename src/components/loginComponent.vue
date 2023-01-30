@@ -91,6 +91,7 @@ export default {
           .then(async response => {
             this.access_token = response.access_token;
             const refresh_token = response.refresh_token;
+            vueCookies.set('access_token', this.access_token);
 
             fetch('https://discord.com/api/users/@me', {
               headers: {

@@ -15,13 +15,37 @@
 
 <script>
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import {getAuth} from "firebase/auth";
+import {doc, getDoc, getFirestore} from "firebase/firestore";
+import {initializeApp} from "firebase/app";
 
 export default {
   name: "transscriptComponent",
   async created() {
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsFPkrCVt2w5vjzZ-JaajZvIjwSLfRwwE",
+      authDomain: "agile-bot-2003.firebaseapp.com",
+      projectId: "agile-bot-2003",
+      storageBucket: "agile-bot-2003.appspot.com",
+      messagingSenderId: "1014532189070",
+      appId: "1:1014532189070:web:e3c3751ecabf85758312df"
+    };
+
+// Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+    const UsersRef = doc(db, 'Users', auth.currentUser.uid);
+    await getDoc(UsersRef).then((doc) => {
+      this.access_token = doc.data().accessToken;
+    }).catch((error) => {
+      console.log("Error getting document:", error);
+    });
+
     await fetch('https://discord.com/api/users/@me', {
       headers: {
-        authorization: `Bearer ${this.$route.query.access_token}`,
+        authorization: `Bearer ${this.access_token}`,
       },
     }).then(result => result.json())
         .then(async response => {
