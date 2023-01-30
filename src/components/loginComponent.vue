@@ -223,7 +223,7 @@ export default {
   position: relative;
   border-radius: 5px;
   background-color: #f2f2f2;
-  padding: 20px 0 30px 0;
+  padding: 20px 0 30px;
 }
 
 /* style inputs and link buttons */
