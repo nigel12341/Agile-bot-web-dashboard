@@ -49,12 +49,20 @@
             <p class="card-text">{{ kicks }}</p>
           </div>
         </div>
-    </div>
+      </div>
       <div class="col">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Clears</h5>
             <p class="card-text">{{ clears }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Mutes</h5>
+            <p class="card-text">{{ mutes }}</p>
           </div>
         </div>
       </div>
@@ -84,6 +92,7 @@ export default {
       clears: 0,
       bans: 0,
       kicks: 0,
+      mutes: 0,
     };
   },
   props: {
@@ -103,6 +112,7 @@ export default {
         this.clears = doc.data().clears;
         this.bans = doc.data().bans;
         this.kicks = doc.data().kicks;
+        this.mutes = doc.data().mutes;
         this.totalMessagesCleared = doc.data().clearMessages;
       });
     },
