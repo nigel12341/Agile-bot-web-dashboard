@@ -1,5 +1,5 @@
 <template>
-  <div id="container">
+  <div id="container" v-if="transscripts !== null">
     <h1>All your transscripts</h1>
     <div class="flex-container" id="parent" v-if="transscripts > 0">
       <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
@@ -9,6 +9,11 @@
     </div>
     <div id="noTicket" v-else>
       <h2>No tickets found!</h2>
+    </div>
+  </div>
+  <div v-else>
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 </template>
@@ -77,7 +82,7 @@ export default {
   data() {
     return {
       access_token: null,
-      transscripts: 0,
+      transscripts: null,
       user: null,
       urls: {},
     };

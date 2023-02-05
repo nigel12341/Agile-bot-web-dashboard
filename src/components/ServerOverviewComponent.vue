@@ -1,15 +1,19 @@
 <template>
-
-  <div>
+  <div v-if="discordGuilds === null">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-show="discordGuilds !== null">
     <h1>Welcome</h1>
     <img id="profileImg" src="../assets/Discord-Logo.png" alt="Profile Picture">
     <h2>{{ discordData }}</h2>
     <div id="userOverview">
-      <router-link :to="{path:'/userView',query:{access_token: userToken}}">
+      <router-link :to="{path:'/userView'}">
         <button class="btn btn-primary btn-lg">Go to personal overview</button>
       </router-link>
     </div>
-    <a v-if="amountOfServers === 0" id="inviteBotButtonSmall" class="btn btn-primary" href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&permissions=8&scope=bot%20applications.commands" type="button">🎉 Add this bot to your server! 🎉</a>
+    <a v-if="amountOfServers > 0" id="inviteBotButtonSmall" class="btn btn-primary btn-sm" href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&permissions=8&scope=bot%20applications.commands" type="button">🎉 Add this bot to your server! 🎉</a>
     <div id="serverOverview">
       <h2>Servers you share with the bot</h2>
       <div id="servers" class="container" v-if="amountOfServers > 0">
@@ -79,7 +83,7 @@ export default {
     getAnalytics(this.app);
     await new Promise(r => setTimeout(r, 500));
     await this.fetchDiscordUser();
-    await this.fetchUserGuilds();
+    await this.fetchUserGuilds()
   },
   methods: {
     async fetchDiscordUser() {

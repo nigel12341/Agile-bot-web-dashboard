@@ -230,13 +230,18 @@
         <h2>Use the /setup command in discord to setup the bot!</h2>
       </div>
     </div>
-    <div id="botSettingsPermFail" v-else-if=fetchFailed>
-      <h1>Bot settings</h1>
-      <h2>Something went wrong while checking your permissions. Please try again later!</h2>
+    <div id="defaultScreen" v-else-if="loading">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
-    <div id="botSettingsUnauth" v-else>
+    <div id="botSettingsUnauth" v-else-if="!authorized">
       <h1>Bot settings</h1>
       <h2>You are not authorized to change bot settings!</h2>
+    </div>
+    <div id="botSettingsPermFail" v-else>
+      <h1>Bot settings</h1>
+      <h2>Something went wrong while checking your permissions. Please try again later!</h2>
     </div>
   </div>
 
@@ -264,6 +269,7 @@ export default {
       setupStatusBackend: false,
       authorized: false,
       fetchFailed: false,
+      loading: true,
       badWordsFilterToggle: false,
 
       access_token: null,
@@ -373,7 +379,6 @@ export default {
       });
     },
     async authorize() {
-      this.fetchFailed = false;
       const auth = getAuth();
       const docRef = doc(this.db, "Guilds", this.serverId, "settings", "roles");
       const docSnap = await getDoc(docRef);
@@ -391,7 +396,7 @@ export default {
           .then(async response => {
             if (response.message === "You are being rate limited.") {
               this.authorized = false;
-              this.fetchFailed = true;
+              return this.fetchFailed = true;
             }
             this.authorized = response.roles.includes(docSnap.data().adminRoleId);
           })
@@ -499,11 +504,12 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     this.access_token = this.$route.query.access_token;
     this.serverId = this.$route.query.id;
     await this.authorize();
     await this.fetchSettings();
+    this.loading = false;
   }
 }
 </script>

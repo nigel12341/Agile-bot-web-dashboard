@@ -1,15 +1,22 @@
 <template>
   <div id="container" class="card">
-    <h1>Ticket transscripts for this server.</h1>
-    <div class="flex-container" id="parent" v-if="transscripts > 0">
-      <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
-        <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
+    <div v-if="transscripts === null" class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div v-else>
+      <h1>Ticket transscripts for this server.</h1>
+      <div class="flex-container" id="parent" v-if="transscripts > 0">
+        <div id="child" class="col card" v-for="(url, index) in urls" :key="url">
+          <iframe :title="index" :src="url" width="100%" height="1000px"></iframe>
+        </div>
+      </div>
+      <div id="noTicket" v-else>
+        <h1>No tickets found</h1>
       </div>
     </div>
-    <div id="noTicket" v-else>
-      <h1>No tickets found</h1>
+
+
     </div>
-  </div>
 </template>
 
 <script>
@@ -78,7 +85,7 @@ export default {
   data() {
     return {
       access_token: null,
-      transscripts: 0,
+      transscripts: null,
       user: null,
       urls: {},
     };
