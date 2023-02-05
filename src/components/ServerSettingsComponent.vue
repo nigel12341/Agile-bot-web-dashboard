@@ -57,7 +57,8 @@
           </button>
 
           <div class="collapse" id="collapseBadWordsFilterSettings">
-              <form class="form-control">
+            <div class="card card-body">
+              <form class="form-control" v-if="badWordsFilterArray.length > 0">
                 <h4>Current words in the filter</h4>
                 <ol v-for="badWords in badWordsFilterArray" :key="badWords" class="list-group">
                   <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -70,6 +71,17 @@
 
                 <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
               </form>
+              <h5 v-else>List empty</h5>
+              </div>
+            <div class="card card-body">
+              <form>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Add word to filter</span>
+                  <input v-model="wordToAddToFilter" type="text" class="form-control" id="addBadWordInput" aria-label="add bad word">
+                </div>
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="addBadWord()">Add</button>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -233,7 +245,7 @@
 </template>
 
 <script>
-import {doc, getDoc, onSnapshot, updateDoc, arrayRemove} from "firebase/firestore";
+import {doc, getDoc, onSnapshot, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 
 export default {
@@ -258,6 +270,8 @@ export default {
 
       access_token: null,
       serverId: null,
+
+      wordToAddToFilter: null,
     }
   },
   props: {
@@ -477,9 +491,14 @@ export default {
       await updateDoc(deleteWordFromListRef, {
         badWords: arrayRemove(word)
       });
-      alert("Bad word deleted!")
-      this.$router.go()
     },
+    async addBadWord() {
+      const badWordInput = this.wordToAddToFilter;
+      const addWordToListRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
+      await updateDoc(addWordToListRef, {
+        badWords: arrayUnion(badWordInput)
+      });
+    }
   },
 
   async mounted() {
