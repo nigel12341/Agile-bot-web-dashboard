@@ -1,6 +1,10 @@
 <template>
-
-  <div>
+  <div v-if="amountOfServers === null">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-show="amountOfServers !== null">
     <h1>Welcome</h1>
     <img id="profileImg" src="../assets/Discord-Logo.png" alt="Profile Picture">
     <h2>{{ discordData }}</h2>
@@ -57,7 +61,7 @@ export default {
       userPfp: null,
       userId: null,
       userToken: '',
-      amountOfServers: 0,
+      amountOfServers: null,
       code: null,
       access_token: null,
       uid: null,
@@ -79,7 +83,7 @@ export default {
     getAnalytics(this.app);
     await new Promise(r => setTimeout(r, 500));
     await this.fetchDiscordUser();
-    await this.fetchUserGuilds();
+    await this.fetchUserGuilds()
   },
   methods: {
     async fetchDiscordUser() {
