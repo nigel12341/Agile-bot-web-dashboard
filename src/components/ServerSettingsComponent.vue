@@ -170,6 +170,15 @@
                 <input type="radio" class="btn-check" name="ticketToggle" id="falseTicketToggle"
                        autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseTicketToggle">No</label>
+
+                <h4>Bad words filter</h4>
+                <input type="radio" class="btn-check" name="badWordsToggle" id="trueBadWordsToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueBadWordsToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="badWordsToggle" id="falseBadWordsToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseBadWordsToggle">No</label>
                 <br>
                 <button class="btn btn-success" id="saveFeatureTogglesBtn" @click="saveFeaturesToggleSettings()">Save</button>
               </form>
@@ -212,10 +221,12 @@ export default {
       ticketCategory: "Unavailable",
       helperTicketAcces: "Unavailable",
       moderatorBanAccess: "Unavailable",
+      badWordsFilterArray: ["Unavailable"],
 
       setupStatusBackend: false,
       authorized: false,
       fetchFailed: false,
+      badWordsFilterToggle: false,
 
       access_token: null,
       serverId: null,
@@ -237,6 +248,7 @@ export default {
       const createSettingsChannelsRef = doc(this.db, "Guilds", this.serverId, "settings", "channels");
       const createfeaturesEnabledSettingsRef = doc(this.db, "Guilds", this.serverId, "settings", "featuresEnabled");
       const createSetupStatusRef = doc(this.db, "Guilds", this.serverId);
+      const badWordsFitlerRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
 
       const docSnap = await getDoc(createSetupStatusRef);
       if (docSnap.exists()) {
@@ -244,6 +256,13 @@ export default {
       } else {
         this.setupStatusBackend = false;
       }
+
+      onSnapshot(badWordsFitlerRef, (doc) => {
+        if (doc.exists()) {
+          this.badWordsFilterArray = doc.data().badWords;
+          this.badWordsFilterToggle = doc.data().toggle;
+        }
+      });
 
       onSnapshot(createSettingsAccessRef, (doc) => {
         if (doc.exists()) {
