@@ -1,4 +1,5 @@
 <template>
+  <!DOCTYPE html>
   <div class="card">
     <div id="botSettings" v-if=authorized>
       <div id="settings " v-if=setupStatusBackend>
@@ -46,6 +47,33 @@
             </div>
           </div>
         </div>
+
+
+        <div class="d-grid gap-2 col-6 mx-auto" id="badWordsFilterSettings">
+
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBadWordsFilterSettings"
+                  aria-expanded="false" aria-controls="collapseBadWordsFilterSettings">
+            Bad words filter settings
+          </button>
+
+          <div class="collapse" id="collapseBadWordsFilterSettings">
+              <form class="form-control">
+                <h4>Current words in the filter</h4>
+                <ol v-for="badWords in badWordsFilterArray" :key="badWords" class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                      {{ badWords }}
+                    </div>
+                    <button @click="deleteBadWord(badWords)" class="badge bg-danger">X</button>
+                  </li>
+                </ol>
+
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
+              </form>
+          </div>
+        </div>
+
+
         <div class="d-grid gap-2 col-6 mx-auto" id="accessSettings">
 
           <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
@@ -205,7 +233,7 @@
 </template>
 
 <script>
-import {doc, getDoc, onSnapshot, updateDoc} from "firebase/firestore";
+import {doc, getDoc, onSnapshot, updateDoc, arrayRemove} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 
 export default {
@@ -261,6 +289,12 @@ export default {
         if (doc.exists()) {
           this.badWordsFilterArray = doc.data().badWords;
           this.badWordsFilterToggle = doc.data().toggle;
+
+          if (this.badWordsFilterToggle === true) {
+            document.getElementById("trueBadWordsToggle").checked = true;
+          } else {
+            document.getElementById("falseBadWordsToggle").checked = true;
+          }
         }
       });
 
@@ -436,6 +470,14 @@ export default {
         tickets: ticketToggle,
       });
       alert("Features toggle settings saved!")
+      this.$router.go()
+    },
+    async deleteBadWord(word) {
+      const deleteWordFromListRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
+      await updateDoc(deleteWordFromListRef, {
+        badWords: arrayRemove(word)
+      });
+      alert("Bad word deleted!")
       this.$router.go()
     },
   },
