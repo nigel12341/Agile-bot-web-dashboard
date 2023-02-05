@@ -68,8 +68,6 @@
                     <button @click="deleteBadWord(badWords)" class="badge bg-danger">X</button>
                   </li>
                 </ol>
-
-                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
               </form>
               <h5 v-else>List empty</h5>
               </div>
