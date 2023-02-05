@@ -1,4 +1,5 @@
 <template>
+  <!DOCTYPE html>
   <div class="card">
     <div id="botSettings" v-if=authorized>
       <div id="settings " v-if=setupStatusBackend>
@@ -46,6 +47,45 @@
             </div>
           </div>
         </div>
+
+
+        <div class="d-grid gap-2 col-6 mx-auto" id="badWordsFilterSettings">
+
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBadWordsFilterSettings"
+                  aria-expanded="false" aria-controls="collapseBadWordsFilterSettings">
+            Bad words filter settings
+          </button>
+
+          <div class="collapse" id="collapseBadWordsFilterSettings">
+            <div class="card card-body">
+              <form class="form-control" v-if="badWordsFilterArray.length > 0">
+                <h4>Current words in the filter</h4>
+                <ol v-for="badWords in badWordsFilterArray" :key="badWords" class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                      {{ badWords }}
+                    </div>
+                    <button @click="deleteBadWord(badWords)" class="badge bg-danger">X</button>
+                  </li>
+                </ol>
+
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="saveRoleSettings()">Save</button>
+              </form>
+              <h5 v-else>List empty</h5>
+              </div>
+            <div class="card card-body">
+              <form>
+                <div class="input-group mb-3">
+                  <span class="input-group-text">Add word to filter</span>
+                  <input v-model="wordToAddToFilter" type="text" class="form-control" id="addBadWordInput" aria-label="add bad word">
+                </div>
+                <button id="saveRoleSettingsBtn" class="btn btn-success" @click="addBadWord()">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
         <div class="d-grid gap-2 col-6 mx-auto" id="accessSettings">
 
           <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
@@ -170,6 +210,15 @@
                 <input type="radio" class="btn-check" name="ticketToggle" id="falseTicketToggle"
                        autocomplete="off" value="false">
                 <label class="btn btn-outline-danger" for="falseTicketToggle">No</label>
+
+                <h4>Bad words filter</h4>
+                <input type="radio" class="btn-check" name="badWordsToggle" id="trueBadWordsToggle"
+                       autocomplete="off" value="true" checked>
+                <label class="btn btn-outline-success" for="trueBadWordsToggle">Yes</label>
+
+                <input type="radio" class="btn-check" name="badWordsToggle" id="falseBadWordsToggle"
+                       autocomplete="off" value="false">
+                <label class="btn btn-outline-danger" for="falseBadWordsToggle">No</label>
                 <br>
                 <button class="btn btn-success" id="saveFeatureTogglesBtn" @click="saveFeaturesToggleSettings()">Save</button>
               </form>
@@ -196,7 +245,7 @@
 </template>
 
 <script>
-import {doc, getDoc, onSnapshot, updateDoc} from "firebase/firestore";
+import {doc, getDoc, onSnapshot, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore";
 import {getAuth} from "firebase/auth";
 
 export default {
@@ -212,13 +261,17 @@ export default {
       ticketCategory: "Unavailable",
       helperTicketAcces: "Unavailable",
       moderatorBanAccess: "Unavailable",
+      badWordsFilterArray: ["Unavailable"],
 
       setupStatusBackend: false,
       authorized: false,
       fetchFailed: false,
+      badWordsFilterToggle: false,
 
       access_token: null,
       serverId: null,
+
+      wordToAddToFilter: null,
     }
   },
   props: {
@@ -237,6 +290,7 @@ export default {
       const createSettingsChannelsRef = doc(this.db, "Guilds", this.serverId, "settings", "channels");
       const createfeaturesEnabledSettingsRef = doc(this.db, "Guilds", this.serverId, "settings", "featuresEnabled");
       const createSetupStatusRef = doc(this.db, "Guilds", this.serverId);
+      const badWordsFitlerRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
 
       const docSnap = await getDoc(createSetupStatusRef);
       if (docSnap.exists()) {
@@ -244,6 +298,19 @@ export default {
       } else {
         this.setupStatusBackend = false;
       }
+
+      onSnapshot(badWordsFitlerRef, (doc) => {
+        if (doc.exists()) {
+          this.badWordsFilterArray = doc.data().badWords;
+          this.badWordsFilterToggle = doc.data().toggle;
+
+          if (this.badWordsFilterToggle === true) {
+            document.getElementById("trueBadWordsToggle").checked = true;
+          } else {
+            document.getElementById("falseBadWordsToggle").checked = true;
+          }
+        }
+      });
 
       onSnapshot(createSettingsAccessRef, (doc) => {
         if (doc.exists()) {
@@ -419,6 +486,19 @@ export default {
       alert("Features toggle settings saved!")
       this.$router.go()
     },
+    async deleteBadWord(word) {
+      const deleteWordFromListRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
+      await updateDoc(deleteWordFromListRef, {
+        badWords: arrayRemove(word)
+      });
+    },
+    async addBadWord() {
+      const badWordInput = this.wordToAddToFilter;
+      const addWordToListRef = doc(this.db, "Guilds", this.serverId, "settings", "badWordsFilter");
+      await updateDoc(addWordToListRef, {
+        badWords: arrayUnion(badWordInput)
+      });
+    }
   },
 
   async mounted() {
