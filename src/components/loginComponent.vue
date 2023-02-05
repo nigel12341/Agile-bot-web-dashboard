@@ -73,7 +73,7 @@ export default {
         const UsersRef = doc(this.db, "Users", this.uid);
         const docSnap = await getDoc(UsersRef);
         if (docSnap.exists()) {
-          if (docSnap.data().discordUserID === "" || docSnap.data().accessToken === "" || docSnap.data().refreshToken === "") {
+          if (docSnap.data().discordUserID === "" || docSnap.data().accessToken === "" || docSnap.data().refreshToken === "" || docSnap.data().discordUserID === undefined || docSnap.data().accessToken === undefined || docSnap.data().refreshToken === undefined) {
             await this.fetchAccessToken();
           }
           if(!this.discordAuthFailed) {
@@ -131,7 +131,7 @@ export default {
         })
       }).then(result => result.json())
           .then(async response => {
-            if (response.error === "invalid_grant") {
+            if (response.error === "invalid_grant" || response.error === "unauthorized" || response.error === "400") {
               await this.refreshToken();
             } else {
               this.access_token = response.access_token;

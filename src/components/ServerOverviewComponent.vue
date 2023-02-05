@@ -9,6 +9,7 @@
         <button class="btn btn-primary btn-lg">Go to personal overview</button>
       </router-link>
     </div>
+    <a v-if="amountOfServers === 0" id="inviteBotButtonSmall" class="btn btn-primary" href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&permissions=8&scope=bot%20applications.commands" type="button">🎉 Add this bot to your server! 🎉</a>
     <div id="serverOverview">
       <h2>Servers you share with the bot</h2>
       <div id="servers" class="container" v-if="amountOfServers > 0">
@@ -28,6 +29,10 @@
       </div>
       <div id="noServers" v-else>
         <h3>You don't share any servers with the bot</h3>
+        <div class="d-grid gap-2">
+          <!--Change auth link to one that does not need admin perms-->
+          <a id="inviteBotButtonLarge" class="btn btn-primary" href="https://discord.com/api/oauth2/authorize?client_id=1066056964083298415&permissions=8&scope=bot%20applications.commands" type="button">🎉 Add this bot to your server! 🎉</a>
+        </div>
       </div>
     </div>
 
@@ -41,7 +46,6 @@
 import {collection, getDocs, query, getDoc, doc} from 'firebase/firestore';
 import {getAnalytics} from "firebase/analytics";
 import {getAuth} from "firebase/auth";
-
 
 export default {
   name: "StatsComponent",
@@ -94,7 +98,7 @@ export default {
       }).then(result => result.json())
           .then(response => {
             if(response.message === "401: Unauthorized") {
-              this.$router.push({name: 'login'});
+              this.$router.push({name: 'login'})
             }
             const {username, discriminator, id, avatar} = response;
             this.discordData = username + '#' + discriminator;
@@ -175,6 +179,17 @@ export default {
 </script>
 
 <style scoped>
+#inviteBotButtonLarge {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  background-color: #7289DA !important;
+  padding: 20px !important;
+}
+#inviteBotButtonSmall {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  background-color: #7289DA !important;
+}
 * {
   text-align: center;
   margin: 0px auto;

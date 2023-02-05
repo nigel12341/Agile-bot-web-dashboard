@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.2.3",
+    "discord-api-wrapper": "^2.2.0",
     "firebase": "^9.16.0",
     "firebaseui": "6.0.2",
     "vue": "^3.2.13",

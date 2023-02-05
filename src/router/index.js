@@ -63,7 +63,7 @@ router.beforeEach( (to, from, next) => {
             } else {
                 alert("Please log in first!")
                 next({
-                    path: '/login',
+                    path: '/',
                 })
             }
         } else {
