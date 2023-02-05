@@ -29,7 +29,7 @@
   <div v-else-if="discordAuthFailed">
     <h1>Link your discord!</h1>
     <p>Click the button below to login with Discord</p>
-    <a type="button" class=" btn btn-primary" :href="oath">in to discord</a>
+    <a type="button" class=" btn btn-primary" :href="oath">Log in to discord</a>
   </div>
   <div id="firebaseui-auth-container"/>
 </template>
@@ -74,7 +74,10 @@ export default {
         const docSnap = await getDoc(UsersRef);
         if (docSnap.exists()) {
           if (docSnap.data().discordUserID === "" || docSnap.data().accessToken === "" || docSnap.data().refreshToken === "" || docSnap.data().discordUserID === undefined || docSnap.data().accessToken === undefined || docSnap.data().refreshToken === undefined) {
-            await this.fetchAccessToken();
+            this.discordAuthFailed = true;
+            if(this.getParameterByName("code") !== null) {
+              await this.fetchAccessToken();
+            }
           }
           if(!this.discordAuthFailed) {
             this.discordLinked = true;
@@ -82,7 +85,10 @@ export default {
             this.$router.push({name: 'serverOverview'});
           }
         } else if (!docSnap.exists()) {
-          await this.fetchAccessToken();
+          this.discordAuthFailed = true;
+          if(this.getParameterByName("code") !== null) {
+            await this.fetchAccessToken();
+          }
         }
 
         this.loggedIn = true;
@@ -160,7 +166,7 @@ export default {
 
     },
     getParameterByName(name, url = window.location.href) {
-      name = name.replace(/[[\]]/g, '\\$&');
+      name = name.replace("\\/[[]]\\/g, '\\$&'");
       let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
           results = regex.exec(url);
       if (!results) return null;
