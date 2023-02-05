@@ -234,10 +234,15 @@
       <h1>Bot settings</h1>
       <h2>Something went wrong while checking your permissions. Please try again later!</h2>
     </div>
-    <div id="botSettingsUnauth" v-else>
+    <div id="defaultScreen" v-else-if="loading">
+      <h1>Bot settings</h1>
+      <h2>Loading...</h2>
+    </div>
+    <div id="botSettingsUnauth" v-else-if="!authorized">
       <h1>Bot settings</h1>
       <h2>You are not authorized to change bot settings!</h2>
     </div>
+
   </div>
 
 </template>
@@ -264,6 +269,7 @@ export default {
       setupStatusBackend: false,
       authorized: false,
       fetchFailed: false,
+      loading: true,
       badWordsFilterToggle: false,
 
       access_token: null,
