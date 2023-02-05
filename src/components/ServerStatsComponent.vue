@@ -99,7 +99,6 @@ export default {
       bans: 0,
       kicks: 0,
       mutes: 0,
-      loading: true,
     };
   },
   props: {
@@ -122,7 +121,6 @@ export default {
         this.mutes = doc.data().mutes;
         this.totalMessagesCleared = doc.data().clearMessages;
       });
-      this.loading = false;
     },
   },
   async created() {
